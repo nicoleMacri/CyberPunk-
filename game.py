@@ -1,8 +1,10 @@
 import pygame
+import random
 
 # Εισαγωγή κλάσεων Player και Enemy 
 from player import Player
 from enemy import Enemy
+from powerups import PowerUp
 
 # Αρχικοποίηση της βιβλιοθήκης Pygame
 pygame.init()
@@ -15,6 +17,8 @@ HOLLYWOOD_CERISE = (236, 19, 164)
 AUREOLIN = (245, 230, 18)
 ELECTRIC_INDIGO = (99, 57, 235)
 SKY_BLUE = (94, 217, 242)
+
+enemies_colors = [ELECTRIC_INDIGO, HOLLYWOOD_CERISE, AUREOLIN]
 
 # Ρυθμίσεις παραθύρου
 SCREEN_WIDTH = 800
@@ -30,33 +34,24 @@ FONT_SMALL = pygame.font.SysFont('Arial', 24)
 # Ρυθμίσεις ρολογιού
 clock = pygame.time.Clock() 
 
+# Settings για τα αντικείμενα enemies
+settings = [
+    (random.randint(50, SCREEN_WIDTH - 90), # Τυχαία θέση x εντός οθόνης
+     random.randint(50, SCREEN_HEIGHT - 200), # Τυχαία θέση y εντός οθόνης
+     random.choice(enemies_colors), # Τυχαίο χρώμα από τη λίστα με τα χρώματα των εχθρών
+     random.uniform(1.0, 5.0), # Τυχαία ταχύτητα μεταξύ 1.0 και 5.0
+     random.choice(["left", "right", "up", "down"])) # Τυχαία κατεύθυνση κίνησης
+    for _ in range(5) # Δημιουργία 5 εχθρών
+]
+
+# Δημιουργία λίστας με αντικείμενα Enemy
+enemies = [Enemy(x, y, 40, 40, color, speed, direction) for x, y, color, speed, direction in settings]
+
 # Δημιουργία αντικειμένου Player
 player = Player( SCREEN_WIDTH, SCREEN_HEIGHT, 50, 50, SKY_BLUE, 5)
 
-# Δημιουργία αντικειμένου Enemy 
-enemy = Enemy(100, 100, 50, 50, ELECTRIC_INDIGO, 3)
-
-
-
-
-
-
-# Μέθοδος για χειρισμό εισόδου χρήστη και κίνησης του παίκτη
-def import_handler():
-    speed = player.speed
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_SPACE]:
-        player.shooting()  # Ενέργεια πυροβολισμού
-    if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-        player.move_left(speed)  # Ενέργεια κίνησης αριστερά
-    if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-        player.move_right(speed)  # Ενέργεια κίνησης δεξιά
-    #Περιορισμός του ορθογωνίου να μην βγαίνει εκτός οθόνης
-    if player.rect.left < 50:
-        player.rect.left = 50
-    if player.rect.right > SCREEN_WIDTH - 50:
-        player.rect.right = SCREEN_WIDTH - 50
-    
+# Δημιουργία αντικειμένου PowerUp
+power_up = PowerUp(300, 0, 30, 30, BLACK, 2)
 
 # Κύρια λούπα παιχνιδιού
 done = False
@@ -64,12 +59,17 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-    import_handler()
-    enemy.auto_move() # Αρχική κίνηση του εχθρού
-    enemy2.auto_move() # Αρχική κίνηση του εχθρού 2
+    player.import_handler(SCREEN_WIDTH)
+   
+    
     screen.fill(RUSSIAN_VIOLET)
     player.draw(screen)
-    enemy.draw(screen)
+    for enemy in enemies:
+        enemy.auto_move()  # Κίνηση του εχθρού προς τα δεξιά
+        enemy.draw(screen)
+    
+    power_up.activate()  # Ενεργοποίηση του power-up
+    power_up.draw(screen)
     
     pygame.display.flip()
     clock.tick(60)
