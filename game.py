@@ -21,8 +21,8 @@ SKY_BLUE = (94, 217, 242)
 enemies_colors = [ELECTRIC_INDIGO, HOLLYWOOD_CERISE, AUREOLIN]
 
 # Ρυθμίσεις παραθύρου
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 500
+SCREEN_HEIGHT = 700
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("CYBER RUNNER")
 
@@ -36,19 +36,44 @@ clock = pygame.time.Clock()
 
 
 # Settings για τα αντικείμενα enemies
-num_enemies = random.randint(3, 7)  # Τυχαίος αριθμός εχθρών μεταξύ 3 και 7
+enemies = [] # Λίστα για αποθήκευση των εχθρών
+rows = random.randint(2,8) # Αριθμός σειρών εχθρών
+cols = random.randint(2,5) # Αριθμός στηλών εχθρών
+spacing_x = 80 # Κενό μεταξύ των εχθρών οριζόντια
 
-settings = [
-    (random.randint(50, SCREEN_WIDTH - 90), # Τυχαία θέση x εντός οθόνης 
-     random.randint(50, SCREEN_HEIGHT - 200), # Τυχαία θέση y εντός οθόνης
-     random.choice(enemies_colors), # Τυχαίο χρώμα από τη λίστα με τα χρώματα των εχθρών
-     random.uniform(1.0, 5.0), # Τυχαία ταχύτητα μεταξύ 1.0 και 5.0
-     random.choice(["left", "right", "up", "down"])) # Τυχαία κατεύθυνση κίνησης
-    for _ in range(num_enemies) # Δημιουργία 5 εχθρών
-]
+grid_w = (cols - 0.5) * spacing_x 
+grid_h = (rows - 1) * spacing_x
 
+start_x = (SCREEN_WIDTH - grid_w) // 2
+start_y = (SCREEN_HEIGHT - grid_h) // 4
+
+for row in range(rows):
+    for col in range(cols):
+        x = start_x + col * spacing_x
+        y = start_y + row * spacing_x
+        color = random.choice(enemies_colors)
+        speed = 1.0
+        #speed = random.uniform(1.0, 5.0)
+        direction = "down"
+        #direction = random.choice(["left", "right", "up", "down"])
+        enemy = Enemy(x, y, 40, 40, color, speed, direction)
+        enemies.append(enemy)
+
+
+
+#num_enemies = random.randint(3, 7)  # Τυχαίος αριθμός εχθρών μεταξύ 3 και 7
+#settings = [
+#    (
+#     40, 80,
+#     random.choice(enemies_colors), # Τυχαίο χρώμα από τη λίστα με τα χρώματα των εχθρών
+#     random.uniform(1.0, 5.0), # Τυχαία ταχύτητα μεταξύ 1.0 και 5.0
+#     random.choice(["left", "right", "up", "down"])) # Τυχαία κατεύθυνση κίνησης
+#    for _ in range(num_enemies) # Δημιουργία 5 εχθρών
+#]
 # Δημιουργία λίστας με αντικείμενα Enemy
-enemies = [Enemy(x, y, 40, 40, color, speed, direction) for x, y, color, speed, direction in settings]
+#enemies = [Enemy(x, y, 40, 40, color, speed, direction) for x, y, color, speed, direction in settings]
+
+
 
 # Δημιουργία αντικειμένου Player
 player = Player( SCREEN_WIDTH, SCREEN_HEIGHT, 50, 50, SKY_BLUE, 5)
@@ -67,8 +92,8 @@ while not done:
     player.draw(screen)
     
     for enemy in enemies:
-        #enemy.auto_move()  # Κίνηση του εχθρού προς τα δεξιά
         enemy.draw(screen)
+        enemy.auto_move()  # Κίνηση του εχθρού
     
     power_up.activate()  # Ενεργοποίηση του power-up
     power_up.draw(screen)
