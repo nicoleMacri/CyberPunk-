@@ -47,6 +47,8 @@ grid_h = (rows - 1) * spacing_x
 start_x = (SCREEN_WIDTH - grid_w) // 2
 start_y = (SCREEN_HEIGHT - grid_h) // 4
 
+
+
 for row in range(rows):
     for col in range(cols):
         x = start_x + col * spacing_x
@@ -59,7 +61,7 @@ for row in range(rows):
         enemy = Enemy(x, y, 40, 40, color, speed, direction)
         enemies.append(enemy)
 
-
+last_row = enemies[(rows - 1) * cols : rows * cols]
 
 #num_enemies = random.randint(3, 7)  # Τυχαίος αριθμός εχθρών μεταξύ 3 και 7
 #settings = [
@@ -93,7 +95,8 @@ while not done:
     
     for enemy in enemies:
         enemy.draw(screen)
-        enemy.auto_move()  # Κίνηση του εχθρού
+    for enemy in last_row:  # Κίνηση μόνο για τους πρώτους εχθρούς
+        enemy.auto_move()
     
     power_up.activate()  # Ενεργοποίηση του power-up
     power_up.draw(screen)
