@@ -34,14 +34,17 @@ FONT_SMALL = pygame.font.SysFont('Arial', 24)
 # Ρυθμίσεις ρολογιού
 clock = pygame.time.Clock() 
 
+
 # Settings για τα αντικείμενα enemies
+num_enemies = random.randint(3, 7)  # Τυχαίος αριθμός εχθρών μεταξύ 3 και 7
+
 settings = [
-    (random.randint(50, SCREEN_WIDTH - 90), # Τυχαία θέση x εντός οθόνης
+    (random.randint(50, SCREEN_WIDTH - 90), # Τυχαία θέση x εντός οθόνης 
      random.randint(50, SCREEN_HEIGHT - 200), # Τυχαία θέση y εντός οθόνης
      random.choice(enemies_colors), # Τυχαίο χρώμα από τη λίστα με τα χρώματα των εχθρών
      random.uniform(1.0, 5.0), # Τυχαία ταχύτητα μεταξύ 1.0 και 5.0
      random.choice(["left", "right", "up", "down"])) # Τυχαία κατεύθυνση κίνησης
-    for _ in range(5) # Δημιουργία 5 εχθρών
+    for _ in range(num_enemies) # Δημιουργία 5 εχθρών
 ]
 
 # Δημιουργία λίστας με αντικείμενα Enemy
@@ -51,7 +54,7 @@ enemies = [Enemy(x, y, 40, 40, color, speed, direction) for x, y, color, speed, 
 player = Player( SCREEN_WIDTH, SCREEN_HEIGHT, 50, 50, SKY_BLUE, 5)
 
 # Δημιουργία αντικειμένου PowerUp
-power_up = PowerUp(300, 0, 30, 30, BLACK, 2)
+power_up = PowerUp(300, 0, 30, 30, BLACK, 1)
 
 # Κύρια λούπα παιχνιδιού
 done = False
@@ -60,12 +63,11 @@ while not done:
         if event.type == pygame.QUIT:
             done = True
     player.import_handler(SCREEN_WIDTH)
-   
-    
     screen.fill(RUSSIAN_VIOLET)
     player.draw(screen)
+    
     for enemy in enemies:
-        enemy.auto_move()  # Κίνηση του εχθρού προς τα δεξιά
+        #enemy.auto_move()  # Κίνηση του εχθρού προς τα δεξιά
         enemy.draw(screen)
     
     power_up.activate()  # Ενεργοποίηση του power-up
@@ -73,3 +75,4 @@ while not done:
     
     pygame.display.flip()
     clock.tick(60)
+
