@@ -3,11 +3,14 @@ from entities import Entities
 
 class Enemy(Entities):
     #alive = True
-    def __init__(self, x, y, width, height, color, speed, direction):
+    def __init__(self, x, y, width, height, color, speed, direction, row = None, col = None, *groups):
+        # Καλούμε πρώτα τον constructor της υπερκλάσης
+        super().__init__(x, y, width, height, color, speed, *groups)
+
+        # Ορισμός επιπλέον ιδιοτήτων για τον εχθρό
         self.direction = direction
-        start_x = x
-        start_y = y
-        super().__init__(start_x, start_y, width, height, color, speed)
+        self.row = row
+        self.col = col
 
     # Μέθοδος για την αυτοματοποιημένη κίνηση του εχθρού
     def auto_move(self):   
@@ -21,9 +24,14 @@ class Enemy(Entities):
             self.move_down(self.speed)
         #Περιορισμός του ορθογωνίου να μην βγαίνει εκτός οθόνης
 
-    #Μέθοδος για την αρχίκη θέση του εχθρού
-    def start_position():
-        pass
+    def update(self, *args, **kwargs):
+        last_row = kwargs.get('last_row', None)
+        if last_row is None and args:
+            last_row = args[0]
+        if last_row is None or self.row == last_row:
+            self.auto_move()
+            
+        super().update(*args, **kwargs)
 
 
    

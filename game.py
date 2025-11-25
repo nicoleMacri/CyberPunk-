@@ -5,6 +5,7 @@ import random
 from player import Player
 from enemy import Enemy
 from powerups import PowerUp
+from bullet import Bullet
 
 # Αρχικοποίηση της βιβλιοθήκης Pygame
 pygame.init()
@@ -34,54 +35,50 @@ FONT_SMALL = pygame.font.SysFont('Arial', 24)
 # Ρυθμίσεις ρολογιού
 clock = pygame.time.Clock() 
 
+# Δημιουργία groups
+#all_sprites = pygame.sprite.Group()
+bullets_group = pygame.sprite.Group()
+enemies_group = pygame.sprite.Group()
 
 # Settings για τα αντικείμενα enemies
-enemies = [] # Λίστα για αποθήκευση των εχθρών
 rows = random.randint(2,8) # Αριθμός σειρών εχθρών
 cols = random.randint(2,5) # Αριθμός στηλών εχθρών
 spacing_x = 80 # Κενό μεταξύ των εχθρών οριζόντια
+spacing_y = 80 # Κενό μεταξύ των εχθρών κάθετα
 
 grid_w = (cols - 0.5) * spacing_x 
-grid_h = (rows - 1) * spacing_x
+grid_h = (rows - 1) * spacing_y
 
 start_x = (SCREEN_WIDTH - grid_w) // 2
 start_y = (SCREEN_HEIGHT - grid_h) // 4
 
 
-
+# Διατηρηση 2d λίστας για τους εχθρούς για λογιή εμφάνισης 
+enemies_grid = []
 for row in range(rows):
+    row_list = []
     for col in range(cols):
         x = start_x + col * spacing_x
-        y = start_y + row * spacing_x
+        y = start_y + row * spacing_y
         color = random.choice(enemies_colors)
         speed = 1.0
         #speed = random.uniform(1.0, 5.0)
         direction = "down"
         #direction = random.choice(["left", "right", "up", "down"])
-        enemy = Enemy(x, y, 40, 40, color, speed, direction)
-        enemies.append(enemy)
+        enemy = Enemy(x, y, 40, 40, color, speed, direction, row, col)
+        enemies_group.add(enemy)
+        row_list.append(enemy)
+    enemies_grid.append(row_list)
 
-last_row = enemies[(rows - 1) * cols : rows * cols]
-
-#num_enemies = random.randint(3, 7)  # Τυχαίος αριθμός εχθρών μεταξύ 3 και 7
-#settings = [
-#    (
-#     40, 80,
-#     random.choice(enemies_colors), # Τυχαίο χρώμα από τη λίστα με τα χρώματα των εχθρών
-#     random.uniform(1.0, 5.0), # Τυχαία ταχύτητα μεταξύ 1.0 και 5.0
-#     random.choice(["left", "right", "up", "down"])) # Τυχαία κατεύθυνση κίνησης
-#    for _ in range(num_enemies) # Δημιουργία 5 εχθρών
-#]
-# Δημιουργία λίστας με αντικείμενα Enemy
-#enemies = [Enemy(x, y, 40, 40, color, speed, direction) for x, y, color, speed, direction in settings]
-
+# Αρχικός δείκτης της τελευταίας σειράς
+last_row = rows - 1
 
 
 # Δημιουργία αντικειμένου Player
 player = Player( SCREEN_WIDTH, SCREEN_HEIGHT, 50, 50, SKY_BLUE, 5)
 
 # Δημιουργία αντικειμένου PowerUp
-power_up = PowerUp(300, 0, 30, 30, BLACK, 1)
+#power_up = PowerUp(300, 0, 30, 30, BLACK, 1)
 
 # Κύρια λούπα παιχνιδιού
 done = False
@@ -89,17 +86,22 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-    player.import_handler(SCREEN_WIDTH)
+    # Επεξεργασία εισόδου χρήστη
+    player.import_handler(SCREEN_WIDTH, bullets_group)
+    # Ενημέρωση εχθρών: περνάμε την τελευταία σειρά (last_row) ως postional arg (συμβατό με Group.update)
+    enemies_group.update(last_row)
+    # ΤΟDO: update και για τα power-ups, bullets κλπ
+    # Ενημέρωση σφαίρων
+    bullets_group.update()
+    
     screen.fill(RUSSIAN_VIOLET)
+    # Σχεδίαση του αντικειμένου Player
     player.draw(screen)
+    # Σχεδίαση όλων των εχθρών από το group
+    enemies_group.draw(screen)
+    bullets_group.draw(screen)
     
-    for enemy in enemies:
-        enemy.draw(screen)
-    for enemy in last_row:  # Κίνηση μόνο για τους πρώτους εχθρούς
-        enemy.auto_move()
-    
-    power_up.activate()  # Ενεργοποίηση του power-up
-    power_up.draw(screen)
+   
     
     pygame.display.flip()
     clock.tick(60)
