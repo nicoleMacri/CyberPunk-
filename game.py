@@ -91,6 +91,10 @@ while not done:
     # Ενημέρωση εχθρών: περνάμε την τελευταία σειρά (last_row) ως postional arg (συμβατό με Group.update)
     enemies_group.update(last_row)
     # ΤΟDO: update και για τα power-ups, bullets κλπ
+    for e in enemies_group:
+        if e.row == last_row:
+            e.shoot(bullets_group)
+            
     # Ενημέρωση σφαίρων
     bullets_group.update()
     
@@ -99,6 +103,7 @@ while not done:
     player.draw(screen)
     # Σχεδίαση όλων των εχθρών από το group
     enemies_group.draw(screen)
+ 
     bullets_group.draw(screen)
     
    
