@@ -68,7 +68,7 @@ start_y = (SCREEN_HEIGHT - grid_h) // 4 #Κεντράρισμα κάθετα σ�
 
 
 # Διατηρηση 2d λίστας για τους εχθρούς για λογιή εμφάνισης 
-enemies_grid = []
+#enemies_grid = []
 """
 [ 
     [Enemy1, Enemy2, ...],  # Σειρά 0
@@ -76,46 +76,116 @@ enemies_grid = []
     ...
 ]
 """
-for row in range(rows):
-    row_list = []
-    for col in range(cols):
-        x = start_x + col * spacing_x # Οριζόντια μετατόπιση
-        y = start_y + row * spacing_y # Κατακόρυφη μετατόπιση
-        color = random.choice(enemies_colors) # Τυχαίο χρώμα από τη λίστα
-        speed = random.uniform(1.0, 5.0) # Τυχαία ταχύτητα μεταξύ 1.0 και 5.0
-        direction = "down"
-        #direction = random.choice(["left", "right", "up", "down"])
-        enemy = Enemy(x, y, 30, 30, color, speed, direction, row, col, enemies_group)
-        row_list.append(enemy)
-    enemies_grid.append(row_list)
+def create_enemies_grid():
+    enemies_grid_local = []
+    for row in range(rows):
+        row_list = []
+        for col in range(cols):
+            x = start_x + col * spacing_x # Οριζόντια μετατόπιση
+            y = start_y + row * spacing_y # Κατακόρυφη μετατόπιση
+            color = random.choice(enemies_colors) # Τυχαίο χρώμα από τη λίστα
+            speed = random.uniform(1.0, 5.0) # Τυχαία ταχύτητα μεταξύ 1.0 και 5.0
+            direction = "down"
+            #direction = random.choice(["left", "right", "up", "down"])
+            enemy = Enemy(x, y, 30, 30, color, speed, direction, row=row, col=col,
+                           bullets_group=bullets_group
+                          , shoot_delay=2000
+                          , row_height=spacing_y)
+            enemies_group.add(enemy)
+            row_list.append(enemy)
+        enemies_grid_local.append(row_list)
+    return enemies_grid_local
 
-
-
+# Δημιουργία του grid εχθρών
+enemies_grid = create_enemies_grid()
+# Κατάσταση ενεργοποίησης των σειρών εχθρών
+rows_status = [{'activated': False, 'start_time': None} for _ in range(rows)]
 # Αρχικός δείκτης της τελευταίας σειράς
-active_row = rows - 1
+active_row = 0
+
+# Ενργοποιηση πρωτης σειρας και τεστινγκ με "θανατο" μετα απο 7δευτερολεπτα
+now = pygame.time.get_ticks()
+rows_status[0]['activated'] = True
+rows_status[0]['start_time'] = now
+for enemy in enemies_grid[0]:
+    enemy.death_time = now + 7000  # Προγραμματισμός θανάτου μετά από 7 δευτερόλεπτα
+
+# cooldown χρόνος μεταξύ ενεργοποίησης σειρών 
+row_switch_cooldown = 200  # milliseconds
+last_row_switch_time = 0 
+    
+
+
 
 # Δημιουργία αντικειμένου Player
 player = Player( SCREEN_WIDTH, SCREEN_HEIGHT, 50, 50, SKY_BLUE, 5)
+
+# debug
+print("rows:", rows, "cols:", cols)
+print("active_row:", active_row)
+
 
 # ------------------------------------
 # ------ Κύρια λούπα παιχνιδιού ------
 # ------------------------------------
 done = False
 while not done:
+    now = pygame.time.get_ticks()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
     # Επεξεργασία εισόδου χρήστη
     player.import_handler(SCREEN_WIDTH, bullets_group)
+    
+    for e in list(enemies_group):
+        dt = getattr(e, 'death_time', None)
+        if dt is not None and now >= dt:
+            e.kill()
+
     # Ενημέρωση εχθρών: περνάμε την τελευταία σειρά (active_row) ως postional arg (συμβατό με Group.update)
-    enemies_group.update(active_row)
+    enemies_group.update(active_row=active_row)
     # ΤΟDO: update και για τα power-ups, bullets κλπ
     for e in enemies_group:
-        if e.row == active_row:
+        if e.row == active_row and rows_status[active_row]['activated']:
             e.shoot(bullets_group)
     # Ενημέρωση σφαίρων
     bullets_group.update()
  
+    # Έλεγχος για ενεργοποίηση της επόμενης σειράς εχθρών# Έλεγχος αν η τρέχουσα σειρά έχει "καθαρίσει" (δεν υπάρχουν πλέον enemies αυτής της σειράς στο group)
+    def row_cleared(idx):
+        for e in enemies_grid[idx]:
+            if e in enemies_group:
+                return False
+        return True
+
+    if row_cleared(active_row):
+        # αν υπάρχουν επόμενες σειρές, ενεργοποιούμε την επόμενη
+        if active_row < rows - 1 and (now - last_row_switch_time) >= row_switch_cooldown:
+            active_row += 1
+            last_row_switch_time = now
+            rows_status[active_row]['activated'] = True
+            rows_status[active_row]['start_time'] = now
+            # για testing μπορούμε να προγραμματίσουμε και την επόμενη σειρά να "πεθάνει" μετά από 7s
+            for e in enemies_grid[active_row]:
+                e.death_time = now + 7000
+        else:
+            # αν ήταν η τελευταία σειρά, ελέγχουμε αν ΚΑΙ όλες οι σειρές έχουν καθαρίσει -> respawn
+            all_cleared = all(row_cleared(r) for r in range(rows))
+            if all_cleared:
+                print("[debug] all cleared -> respawn")
+                for s in list(enemies_group):
+                    s.kill()
+                enemies_group.empty()
+                bullets_group.empty()
+                enemies_grid = create_enemies_grid()
+                rows_status = [{'activated': False, 'start_time': None} for _ in range(rows)]
+                active_row = 0
+                now = pygame.time.get_ticks()
+                rows_status[0]['activated'] = True
+                rows_status[0]['start_time'] = now
+                for e in enemies_grid[0]:
+                    e.death_time = now + 7000
+                print("[debug] respawned new grid")
 
     # Σχεδίαση
     screen.fill(RUSSIAN_VIOLET)

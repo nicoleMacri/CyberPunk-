@@ -4,8 +4,9 @@ from bullet import Bullet
 
 class Enemy(Entities):
     #alive = True
-    def __init__(self, x, y, width, height, color, speed, direction, row = None, col = None,
-                 *groups, bullets_group=None, shoot_delay = 1500):
+    def __init__(self, x, y, width, height, color, speed, direction
+                 , row = None, col = None,
+                 *groups, bullets_group=None, shoot_delay = 1500, row_height=None):
         """
         bullets_group: Προαιρετική ομάδα sprite για τις σφαίρες που θα πυροβολεί ο εχθρός.
         shoot_delay: Χρόνος καθυστέρησης μεταξύ των πυροβολισμών σε milliseconds. (2000 ms = 2 sec)
@@ -22,7 +23,20 @@ class Enemy(Entities):
         # Ιδιότητες για τον πυροβολισμό
         self.bullets_group = bullets_group
         self.shoot_delay = int(shoot_delay)
-        self.last_shoot_time = 0  # Χρόνος του τελευταίου πυροβολισμού
+        self.last_shoot_time = pygame.time.get_ticks() - self.shoot_delay  # Χρόνος του τελευταίου πυροβολισμού0
+
+        # for testing
+        self.alive = True
+        self.movement_done = False
+        self.start_y = self.rect.y
+        if row_height is not None:
+            self.target_y = self.start_y + int(row_height * 0.5)
+        else:
+            self.target_y = self.start_y + (self.rect.height // 2)
+        
+        self.death_time = None  # Χρόνος προγραμματισμένου θανάτου (σε milliseconds)
+        
+
 
 
     # Μέθοδος για την αυτοματοποιημένη κίνηση του εχθρού
@@ -52,16 +66,38 @@ class Enemy(Entities):
         active_row = kwargs.get('active_row', None)
         if active_row is None and args:
             active_row = args[0]
+
+        now = pygame.time.get_ticks()
+
+        if self.death_time is not None and now >= self.death_time and self.alive:
+            self.alive = False
+            self.movement_done = True
+            self.kill()
+            return
+        if not self.alive:
+            return
+        
         if active_row is None or self.row == active_row:
-            self.auto_move()
+            if not self.movement_done:
+                self.auto_move()
+                if self.y >= self.target_y:
+                    self.y = self.target_y
+                    self.movement_done = True
             
         super().update(*args, **kwargs)
 
     def shoot(self, bullets_group=None):
+        if not self.alive:
+            return None
+        
         now = pygame.time.get_ticks()
         if now - self.last_shoot_time < self.shoot_delay:
             return None  # Δεν επιτρέπεται ο πυροβολισμός ακόμα
 
+
+        print(f"[shoot] Enemy ({self.row},{self.col}) at y={self.rect.y} shoots at t={now}")
+
+        
         bullet = Bullet.from_shooter(
             self,
             width=4,
