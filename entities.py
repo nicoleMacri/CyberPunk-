@@ -13,6 +13,7 @@ class Entities(pygame.sprite.Sprite):
         # *groups επιτρέπει να προσθέσουμε ενα αντικείμενο σε πολλαπλές ομάδες sprite
         # Κλήση του constructor της γονικής κλάσης
         super().__init__(*groups) 
+        # Για ομαλή κίνηση χρησιμοποιούμε float για τις συντεταγμένες
         self._x = float(x)
         self._y = float(y)
         self.w = int(width)
@@ -21,7 +22,7 @@ class Entities(pygame.sprite.Sprite):
         self.speed = float(speed)
 
         # Δημιουργία της εικόνας και του ορθογωνίου (rect) για την οντότητα
-        self.image = pygame.Surface((self.w, self.h))
+        self.image = pygame.Surface((self.w, self.h)) # τεστ θα πρέπει να αλλάξει
         self.image.fill(self.color)
         self.rect = self.image.get_rect(topleft=(self._x, self._y))
 
@@ -74,7 +75,7 @@ class Entities(pygame.sprite.Sprite):
 
     # Μέθοδος για πυροβολισμό
     def shooting(self):
-        # Placeholder for shooting logic
+        # Θα επεκταθει στις υποκλάσεις
         print("Shooting action executed")
 
     def update(self, *args, **kwargs):
