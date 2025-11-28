@@ -4,9 +4,9 @@ from bullet import Bullet
 
 class Enemy(Entities):
     #alive = True
-    def __init__(self, x, y, width, height, color, speed, direction
-                 , row = None, col = None,
-                 *groups, bullets_group=None, shoot_delay = 1500, row_height=None):
+    def __init__(self, x, y, width, height, color, speed, direction, row = None, col = None,
+                 bullets_group=None, shoot_delay = 1500, row_height=None,
+                 hp = 10, *groups):
         """
         bullets_group: Προαιρετική ομάδα sprite για τις σφαίρες που θα πυροβολεί ο εχθρός.
         shoot_delay: Χρόνος καθυστέρησης μεταξύ των πυροβολισμών σε milliseconds. (2000 ms = 2 sec)
@@ -25,19 +25,39 @@ class Enemy(Entities):
         self.shoot_delay = int(shoot_delay)
         self.last_shoot_time = pygame.time.get_ticks() - self.shoot_delay  # Χρόνος του τελευταίου πυροβολισμού0
 
-        # for testing
+        # Ιδιότητες για health kai alive
+        self.hp = int(hp)
         self.alive = True
+
+        
         self.movement_done = False
         self.start_y = self.rect.y
-        if row_height is not None:
+        if row_height is not None: 
             self.target_y = self.start_y + int(row_height * 0.5)
-        else:
+        else: 
             self.target_y = self.start_y + (self.rect.height // 2)
-        
-        self.death_time = None  # Χρόνος προγραμματισμένου θανάτου (σε milliseconds)
-        
 
+    def activate(self, row_height=None):
+        self.movement_done = False
+        self.start_y = self.rect.y
+        if row_height is not None: 
+            self.target_y = self.start_y + int(row_height * 0.5)
+        self.alive = True
 
+    def take_damage(self, damage=1):
+        if not self.alive:
+            return
+        
+        self.hp -= int(damage)
+        if self.hp <= 0:
+            self.die()
+
+    def die(self):
+        if not self.alive:
+            return
+        self.alive = False
+        self.movement_done = True
+        self.kill()
 
     # Μέθοδος για την αυτοματοποιημένη κίνηση του εχθρού
     def auto_move(self):   
@@ -67,13 +87,6 @@ class Enemy(Entities):
         if active_row is None and args:
             active_row = args[0]
 
-        now = pygame.time.get_ticks()
-
-        if self.death_time is not None and now >= self.death_time and self.alive:
-            self.alive = False
-            self.movement_done = True
-            self.kill()
-            return
         if not self.alive:
             return
         
@@ -111,7 +124,6 @@ class Enemy(Entities):
         target_group = bullets_group if bullets_group is not None else self.bullets_group
         if target_group is not None:
             target_group.add(bullet)
-        
         self.last_shoot_time = now
         return bullet
 
