@@ -149,7 +149,7 @@ player = Player(SCREEN_WIDTH, SCREEN_HEIGHT, 50, 50, SKY_BLUE, 5)
 # Δημιουργία του grid εχθρών
 enemies_grid = create_enemies_grid()
 rows_status = init_rows_status(rows)
-active_row = 0
+active_row = rows - 1
 activate_row(active_row, rows_status, enemies_grid, spacing_y)
 
 
