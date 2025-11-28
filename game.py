@@ -5,8 +5,6 @@
 την ενημέρωση της κατάστασης των αντικειμένων και τη σχεδίαση τους.
 
 """
-
-
 import pygame
 import random
 
@@ -49,7 +47,7 @@ clock = pygame.time.Clock()
 bullets_group = pygame.sprite.Group()
 enemies_group = pygame.sprite.Group()
 
-# Settings για το grid για τα αντικείμενα enemies
+# ------- Settings για το grid για τα αντικείμενα enemies ----------
 """ 
 Δημιουργία ενός πλέυγματος (grid) εχθρών με τυχαίο αριθμό σειρών και στηλών. Ουσιαστικά,
 δημιουργούμε μια 2D διάταξη εχθρών που τοποθετούνται σε συγκεκριμένες αποστάσεις (spacing) μεταξύ τους.
@@ -67,16 +65,17 @@ start_x = (SCREEN_WIDTH - grid_w) // 2 # Κεντράρισμα οριζόντι
 start_y = (SCREEN_HEIGHT - grid_h) // 4 #Κεντράρισμα κάθετα στο άνω μέρος της οθόνης
 
 
-# Διατηρηση 2d λίστας για τους εχθρούς για λογιή εμφάνισης 
-#enemies_grid = []
-"""
-[ 
-    [Enemy1, Enemy2, ...],  # Σειρά 0
-    [Enemy1, Enemy2, ...],  # Σειρά 1
-    ...
-]
-"""
+
 def create_enemies_grid():
+    """
+    Δημιουργεί ένα grid εχθρών με τυχαία χαρακτηριστικά και τους προσθέτει στο enemies_group.
+    Επιστρέφει μια 2D λίστα με τους εχθρούς.
+    enemies_grid_local: [
+        [Enemy00, Enemy01, ...],  # Σειρά 0
+        [Enemy10, Enemy11, ...],  # Σειρά 1
+        [...],                    # ...
+    ]
+    """
     enemies_grid_local = []
     for row in range(rows):
         row_list = []
@@ -84,21 +83,28 @@ def create_enemies_grid():
             x = start_x + col * spacing_x # Οριζόντια μετατόπιση
             y = start_y + row * spacing_y # Κατακόρυφη μετατόπιση
             color = random.choice(enemies_colors) # Τυχαίο χρώμα από τη λίστα
-            speed = random.uniform(1.0, 5.0) # Τυχαία ταχύτητα μεταξύ 1.0 και 5.0
-            direction = "down"
+            #speed = random.uniform(1.0, 5.0) # Τυχαία ταχύτητα μεταξύ 1.0 και 5.0
+            #direction = "down"
             #direction = random.choice(["left", "right", "up", "down"])
-            enemy = Enemy(x, y, 30, 30, color, speed, direction, row=row, col=col,
+            enemy = Enemy(x, y, 30, 30, color, speed = 2.0 , direction="down", row=row, col=col,
                            bullets_group=bullets_group
                           , shoot_delay=2000
                           , row_height=spacing_y)
-            enemies_group.add(enemy)
-            row_list.append(enemy)
-        enemies_grid_local.append(row_list)
-    return enemies_grid_local
+            enemies_group.add(enemy) # Προσθήκη του εχθρού στο group
+            row_list.append(enemy) # Προσθήκη του εχθρού στη σειρά
+        enemies_grid_local.append(row_list) # Προσθήκη της σειράς στο grid
+    return enemies_grid_local # Επιστροφή του grid εχθρών
 
 # Δημιουργία του grid εχθρών
 enemies_grid = create_enemies_grid()
 # Κατάσταση ενεργοποίησης των σειρών εχθρών
+"""
+ rows_status: [
+    {'activated': False, 'start_time': None},  # Σειρά 0
+    {'activated': False, 'start_time': None},  # Σειρά 1
+    ...
+ ]
+"""
 rows_status = [{'activated': False, 'start_time': None} for _ in range(rows)]
 # Αρχικός δείκτης της τελευταίας σειράς
 active_row = 0
@@ -126,7 +132,7 @@ print("active_row:", active_row)
 
 
 # ------------------------------------
-# ------ Κύρια λούπα παιχνιδιού ------
+# --------- GAME MAIN LOOP -----------
 # ------------------------------------
 done = False
 while not done:
@@ -137,14 +143,14 @@ while not done:
     # Επεξεργασία εισόδου χρήστη
     player.import_handler(SCREEN_WIDTH, bullets_group)
     
+    
     for e in list(enemies_group):
-        dt = getattr(e, 'death_time', None)
+        dt = getattr(e, 'death_time', None) # Λήψη του death_time αν υπάρχει, διαφορετικά None
         if dt is not None and now >= dt:
             e.kill()
 
     # Ενημέρωση εχθρών: περνάμε την τελευταία σειρά (active_row) ως postional arg (συμβατό με Group.update)
     enemies_group.update(active_row=active_row)
-    # ΤΟDO: update και για τα power-ups, bullets κλπ
     for e in enemies_group:
         if e.row == active_row and rows_status[active_row]['activated']:
             e.shoot(bullets_group)

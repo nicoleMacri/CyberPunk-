@@ -13,3 +13,4 @@ class PowerUp(Entities):
     def deactivate(self):
         print("Power-up deactivated for player!")
     
+    
