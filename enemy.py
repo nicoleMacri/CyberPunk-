@@ -9,7 +9,7 @@ class Enemy(Entities):
                 bullets_group=None,
                 shoot_delay = 1500,
                 row_height=None,
-                hp = 10,
+                hp = 3,
                 *groups):
         """
         bullets_group: Προαιρετική ομάδα sprite για τις σφαίρες που θα πυροβολεί ο εχθρός.
@@ -87,7 +87,7 @@ class Enemy(Entities):
     def update(self, *args, **kwargs):
         """
         Μέθοδος για την ενημέρωση της κατάστασης του εχθρού.
-        
+
         """
 
         if not self.alive:

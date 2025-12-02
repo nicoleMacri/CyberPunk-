@@ -21,8 +21,8 @@ class EnemyWave:
             (99, 57, 235) # ELECTRIC_INDIGO
         ]
 
-        self.rows = random.randint(2, 4)  # 2 έως 4 σειρές
-        self.cols = random.randint(3, 5)  # 3 έως 5 στήλες
+        self.rows = None # Ορίζεται απο την random_grid_size
+        self.cols = None # Ορίζεται απο την random_grid_size
         self.spacing_x = 80  # Απόσταση μεταξύ στηλών
         self.spacing_y = 80  # Απόσταση μεταξύ σειρών
 
@@ -32,6 +32,14 @@ class EnemyWave:
         self.enemies_grid = None # 2D λίστα με τους εχθρούς
         self.status_rows = None # Κατάσταση των σειρών
         self.active_row = None # Τρέχουσα ενεργή σειρά
+
+    def random_grid_size(self):
+        """
+        Μέθοδος για την τυχαία ρύθμιση του μεγέθους του grid εχθρών.
+        Ορίζει τυχαίες τιμές για τις σειρές και τις στήλες.
+        """
+        self.rows = random.randint(2, 4)  # 2 έως 4 σειρές
+        self.cols = random.randint(3, 5)  # 3 έως 5 στήλες
 
     def enemies_grid_create(self):
         """
@@ -67,7 +75,7 @@ class EnemyWave:
                             bullets_group = self.enemy_bullets_group,
                             shoot_delay = 2000,
                             row_height = self.spacing_y,
-                            hp = 10)
+                            hp = 3)
                 self.enemies_group.add(enemy) # Προσθήκη του εχθρού στο αντίστοιχο group
                 row_list.append(enemy) # Προσθήκη του εχθρού στη σειρά
             enemies_grid_local.append(row_list) # Προσθήκη της σειράς στο grid
@@ -102,6 +110,7 @@ class EnemyWave:
         """
         self.enemies_group.empty() # Αφαίρεση όλων των εχθρών από το group
         self.enemy_bullets_group.empty() # Αφαίρεση όλων των σφαιρών εχθρών από το group
+        self.random_grid_size() # Τυχαία ρύθμιση μεγέθους grid
         self.enemies_grid = self.enemies_grid_create() # Δημιουργία νέου grid εχθρών
         self.status_rows = self.status_rows_init() # Αρχικοποίηση της κατάστασης των σειρών
         self.active_row = 0 # Ορισμός της πρώτης σειράς
@@ -134,18 +143,27 @@ class EnemyWave:
         Μέθοδος για την ενημέρωση της κατάστασης των κυμάτων εχθρών.
         Καλείται στην κύρια λούπα του παιχνιδιού.
         """
-        now = pygame.time.get_ticks()
+        now = pygame.time.get_ticks() 
 
+        # Πυροβολισμοί εχθρών από την ενεργή σειρά
         for enemy in list(self.enemies_group):
             if enemy.row == self.active_row and enemy.alive:
                 enemy.shoot()
         
+        # Έλεγχος αν το κύμα έχει ολοκληρωθεί
+        if self.wave_complete():
+            self.new_enemy_wave() # Δημιουργία νέου κύματος εχθρών
+            return
+
+        # Έλεγχος αν η ενεργή σειρά έχει καθαρίσει
         if self.row_cleared(self.active_row):
-            if now - self.last_row_switch_time >= self.row_cooldown:
-                self.active_row += 1
-                if self.active_row < self.rows:
-                    self.row_activate(self.active_row)
+            # Μετακίνηση στην επόμενη σειρά αν υπάρχει
+            if self.active_row + 1 < self.rows:
+                # Έλεγχος αν έχει περάσει ο χρόνος cooldown για την αλλαγή σειράς
+                if now - self.last_row_switch_time >= self.row_cooldown:
+                    self.active_row += 1 # Μετακίνηση στην επόμενη σειρά
+                    self.row_activate(self.active_row) # Ενεργοποίηση της επόμενης σειράς
                     self.last_row_switch_time = now
+            # Διαφορετικά, αν δεν υπάρχουν άλλες σειρές, δημιουργία νέου κύματος        
             else:
-                if self.wave_complete():
-                    self.new_enemy_wave()
+                self.new_enemy_wave() # Δημιουργία νέου κύματος εχθρών

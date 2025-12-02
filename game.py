@@ -26,8 +26,6 @@ AUREOLIN = (245, 230, 18)
 ELECTRIC_INDIGO = (99, 57, 235)
 SKY_BLUE = (94, 217, 242)
 
-# Λίστα με χρώματα για τους εχθρούς ( Αργότερα θα αντικατασταθεί με τα sprites των εχθρών)
-enemies_colors = [ELECTRIC_INDIGO, HOLLYWOOD_CERISE, AUREOLIN]
 
 # Ρυθμίσεις παραθύρου
 SCREEN_WIDTH = 500
@@ -91,7 +89,7 @@ while not done:
             done = True
     # Επεξεργασία εισόδου χρήστη
     player.import_handler(SCREEN_WIDTH, player_bullets_group)
-    wave_manager.new_enemy_wave()
+    
 
     #----- UPDATES -----
     
@@ -103,15 +101,11 @@ while not done:
     wave_manager.update()
     
     #----- Collisions ----- 
-    #handle_collisions()
     hits = pygame.sprite.groupcollide(enemies_group, player_bullets_group, False, True)
     for enemy, bullets in hits.items():
         enemy.take_damage(damage=len(bullets))
 
-    # πυροβολισμοί εψθρού
-    #for enemy in list(enemies_group):
-    #    if enemy.row == active_row and rows_status[active_row]['activated']:
-    #        enemy.shoot(enemy_bullets_group)    
+     
 
 
 
