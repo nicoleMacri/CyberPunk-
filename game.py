@@ -32,6 +32,7 @@ SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 700
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("CYBER RUNNER")
+backgrpund_img = pygame.image.load("background.jpg").convert()
 
 # Ρυθμίσεις ρολογιού
 clock = pygame.time.Clock() 
@@ -114,7 +115,7 @@ while not done:
     
     # ----- ΣΧΕΔΙΑΣΗ -----
     # Σχεδίαση
-    screen.fill(RUSSIAN_VIOLET)
+    screen.blit(backgrpund_img, (0, 0))  # Σχεδίαση φόντου
     # Σχεδίαση του αντικειμένου Player
     player.draw(screen)
     # Σχεδίαση όλων των εχθρών από το group
