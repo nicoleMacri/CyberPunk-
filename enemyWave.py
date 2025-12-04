@@ -8,12 +8,13 @@ class EnemyWave:
     Περιλαμβάνει μεθόδους για την δημιουργία grid εχθρών, την δημιουργία νέου κύματος εχθρών, την ενημέρωση της κατάστασης των κυμάτων κ.α.
 
     """
-    def __init__(self, scr_width, scr_height, enemies_group, enemy_bullets_group, player_bullets_group):
+    def __init__(self, scr_width, scr_height, enemies_group, enemy_bullets_group, player_bullets_group, player):
         self.scr_width = scr_width # Πλάτος οθόνης
         self.scr_height = scr_height # Ύψος οθόνης
         self.enemies_group = enemies_group # Group με τους εχθρούς
         self.enemy_bullets_group = enemy_bullets_group # Group με τις σφαίρες εχθρών
         self.player_bullets_group = player_bullets_group # Group με τις σφαίρες παίκτη
+        self.player = player  # Αντικείμενο παίκτη
 
         self.enemies_colors = [
             (245, 230, 18), # LASER_LEMON
@@ -23,8 +24,8 @@ class EnemyWave:
 
         self.rows = None # Ορίζεται απο την random_grid_size
         self.cols = None # Ορίζεται απο την random_grid_size
-        self.spacing_x = 80  # Απόσταση μεταξύ στηλών
-        self.spacing_y = 80  # Απόσταση μεταξύ σειρών
+        self.spacing_x = 40  # Απόσταση μεταξύ στηλών
+        self.spacing_y = 40  # Απόσταση μεταξύ σειρών
 
         self.row_cooldown = 200  # ms
         self.last_row_switch_time = 0 # Χρόνος αλλαγής της σειράς
@@ -33,13 +34,21 @@ class EnemyWave:
         self.status_rows = None # Κατάσταση των σειρών
         self.active_row = None # Τρέχουσα ενεργή σειρά
 
+        self.moving_horizontal = False # Flag για την κίνηση αριστερά-δεξιά των εχθρών
+
+        self.grid_offset = 0.0
+        self.grid_direction = 1  # 1 για δεξιά, -1 για αριστερά
+        self.grid_speed = 2.0  # Ταχύτητα κίνησης του grid αριστερά-δεξιά 
+        self.padding = 50
+
+
     def random_grid_size(self):
         """
         Μέθοδος για την τυχαία ρύθμιση του μεγέθους του grid εχθρών.
         Ορίζει τυχαίες τιμές για τις σειρές και τις στήλες.
         """
-        self.rows = random.randint(2, 4)  # 2 έως 4 σειρές
-        self.cols = random.randint(3, 5)  # 3 έως 5 στήλες
+        self.rows = random.randint(2, 5)  # 2 έως 5 σειρές
+        self.cols = random.randint(2, 4)  # 3 έως 4 στήλες
 
     def enemies_grid_create(self):
         """
@@ -52,34 +61,42 @@ class EnemyWave:
         ]
         
         """
-        grid_width = (self.cols - 0.5) * self.spacing_x # Πλάτος του grid
+
+        
+        grid_width = (self.cols - 1) * self.spacing_x  # Πλάτος του grid
         grid_height = (self.rows - 1) * self.spacing_y # Ύψος του grid
 
         start_x = (self.scr_width - grid_width) // 2 # Κεντράρισμα οριζόντια στο κέντρο της οθόνης
         start_y = (self.scr_height - grid_height) // 4 #Κεντράρισμα κάθετα στο άνω μέρος της οθόνης
-
+        
         enemies_grid_local = [] # 2D λίστα με τους εχθρούς
         for row in range (self.rows):
             row_list = [] # Λίστα για την τρέχουσα σειρά
             for col in range (self.cols):
-                x = start_x + col * self.spacing_x # Οριζόντια μετατόπιση
-                y = start_y + row * self.spacing_y # Κατακόρυφη μετατόπιση
-                
+                fin_y = start_y + row * self.spacing_y
+                x = start_x + col * self.spacing_x
+
                 # Αρχικοποίηση εχθρού
-                enemy = Enemy(x,y,40,40,
+                enemy = Enemy(x,-100,30,30,
                             color = random.choice(self.enemies_colors),
-                            speed = 2.0,
+                            speed = 4.0,
                             move = "down",
+                            fin_y=fin_y,
                             row = row,
                             col = col,
                             bullets_group = self.enemy_bullets_group,
                             shoot_delay = 2000,
-                            row_height = self.spacing_y,
-                            hp = 3)
+                            row_height = self.spacing_y, # αυτο δεν χρησιμοποιείται πλέον
+                            hp = 1,
+                            player_object = self.player)
                 
                 self.enemies_group.add(enemy) # Προσθήκη του εχθρού στο αντίστοιχο group
                 row_list.append(enemy) # Προσθήκη του εχθρού στη σειρά
             enemies_grid_local.append(row_list) # Προσθήκη της σειράς στο grid
+        # Επαναφορά της κατάστασης κίνησης του grid
+        self.grid_offset = 0.0 
+        self.grid_direction = 1
+          
         return enemies_grid_local # Επιστροφή του grid εχθρών
     
     def status_rows_init(self):
@@ -98,11 +115,12 @@ class EnemyWave:
         Μέθοδος για την ενεργοποίηση μιας σειράς εχθρών.
         idx: Δείκτης της σειράς που θα ενεργοποιηθεί.
         """
-        now = pygame.time.get_ticks()
+        #now = pygame.time.get_ticks()
         self.status_rows[idx]['activated'] = True
-        self.status_rows[idx]['start_time'] = now
+        #self.status_rows[idx]['start_time'] = now
         for enemy in self.enemies_grid[idx]:
-            enemy.activate(row_height=self.spacing_y)
+            #enemy.activate(row_height=self.spacing_y)
+            enemy.activate()
     
     def new_enemy_wave(self):
         """
@@ -138,7 +156,51 @@ class EnemyWave:
 
         """
         return all(self.row_cleared(row) for row in range(self.rows))
+
+    def enemies_grid_move(self):
+        """
+        Μέθοδος για την κίνηση του grid εχθρών αριστερά-δεξιά.
+        """
+        
+        min_x = float('inf') # Αριστερό άκρο του grid
+        max_x = float('-inf') # Δεξί άκρο του grid
+        for row in self.enemies_grid:
+            for enemy in row:
+                if enemy.rect.x < min_x:
+                    min_x = enemy.rect.x
+                if enemy.rect.x + enemy.rect.width > max_x:
+                    max_x = enemy.rect.x + enemy.rect.width
+
+        
+
+        if min_x <= self.padding: # padding αριστερά
+            self.grid_direction = 1  # Αλλαγή κατεύθυνσης προς τα δεξιά
+        elif max_x >= self.scr_width - self.padding: # padding δεξιά
+            self.grid_direction = -1  # Αλλαγή κατεύθυνσης προς τα αριστερά
+
+       
+
+        for enemy_row in self.enemies_grid:
+            for enemy in enemy_row:
+                enemy.rect.x += self.grid_direction * self.grid_speed
+                if hasattr(enemy, 'x'):
+                    enemy.x = enemy.rect.x
+
+        self.moving_horizontal = True  # Ορισμός του flag ότι οι εχθροί κινούνται αριστερά-δεξιά
+
     
+    def enemies_final_position(self):
+        """
+        Μέθοδος για τον έλεγχο αν όλοι οι εχθροί έχουν φτάσει στην τελική τους θέση.
+        Επιστρέφει True αν όλοι οι εχθροί έχουν φτάσει στην τελική τους θέση, αλλιώς False.
+        """
+        for enemy_row in self.enemies_grid:
+            for enemy in enemy_row:
+                if not enemy.movement_done and enemy.alive:
+                    return False
+        return True
+    
+
     def update(self):
         """
         Μέθοδος για την ενημέρωση της κατάστασης των κυμάτων εχθρών.
@@ -146,9 +208,13 @@ class EnemyWave:
         """
         now = pygame.time.get_ticks() 
 
+        # Έλεγχος αν όλοι οι εχθροί έχουν φτάσει στην τελική τους θέση ώστε να ξεκινήσει η κίνηση τους
+        if self.enemies_final_position() or self.moving_horizontal:
+            self.enemies_grid_move()
+
         # Πυροβολισμοί εχθρών από την ενεργή σειρά
         for enemy in list(self.enemies_group):
-            if enemy.row == self.active_row and enemy.alive:
+            if enemy.row == self.active_row and enemy.alive and enemy.movement_done:
                 enemy.shoot()
         
         # Έλεγχος αν το κύμα έχει ολοκληρωθεί

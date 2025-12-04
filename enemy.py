@@ -1,15 +1,18 @@
 import pygame
 from entities import Entities
 from bullet import Bullet
+import player
 
 class Enemy(Entities):
-    #alive = True
     def __init__(self, x, y, width, height, color, speed,
-                move, row = None, col = None,
+                move, 
+                fin_y,
+                row = None, col = None,
                 bullets_group=None,
                 shoot_delay = 1500,
                 row_height=None,
-                hp = 3,
+                hp = None,
+                player_object=None,
                 *groups):
         """
         bullets_group: Προαιρετική ομάδα sprite για τις σφαίρες που θα πυροβολεί ο εχθρός.
@@ -18,6 +21,8 @@ class Enemy(Entities):
         """
         # Καλούμε πρώτα τον constructor της υπερκλάσης
         super().__init__(x, y, width, height, color, speed, *groups)
+
+        self.player = player_object
 
         # Ιδιότητες γαι την θέση του εχθρού στο grid
         self.move = move
@@ -36,27 +41,24 @@ class Enemy(Entities):
         
         self.movement_done = False
         self.start_y = self.rect.y
-        self.target_y = self.start_y + int(row_height * 0.5)
-        #if row_height is not None: 
-        #    self.target_y = self.start_y + int(row_height * 0.5)
-        #else: 
-        #    self.target_y = self.start_y + (self.rect.height // 2)
+        
+        self.target_y = fin_y
 
     def activate(self, row_height=None):
         """
         Μέθοδος για την ενεργοποίηση του εχθρού.
         """
         self.movement_done = False
-        self.start_y = self.rect.y
-        self.target_y = self.start_y + int(row_height * 0.5) 
+        #self.start_y = self.rect.y
+        #self.target_y = self.start_y + int(row_height * 0.5) 
         #if row_height is not None: 
         #    self.target_y = self.start_y + int(row_height * 0.5)
-        self.alive = True
+        #self.alive = True
 
     def take_damage(self, damage=1):
         """ Μέθοδος για damage του εχθρού. 
         Μειώνει το hp του εχθρού κατά damage.  Αν το hp φτάσει στο 0 ή κάτω, καλεί τη μέθοδο die() για τον θανάτο του εχθρού.
-    """
+        """
         if not self.alive:
             return
         
@@ -71,9 +73,10 @@ class Enemy(Entities):
         self.alive = False
         self.movement_done = True
         self.kill() # Αφαίρεση του εχθρού από όλα τα groups
+        self.player.score_point()  # Κλήση της μεθόδου score_point() του παίκτη
 
     # Μέθοδος για την αυτοματοποιημένη κίνηση του εχθρού
-    def auto_move(self):   
+    def auto_move(self, move=None):   
         if self.movement_done:
             return
         if self.move == "left":
@@ -84,7 +87,8 @@ class Enemy(Entities):
             self.move_up(self.speed)
         elif self.move == "down":
             self.move_down(self.speed)
-        #Περιορισμός του ορθογωνίου να μην βγαίνει εκτός οθόνης
+        
+        
 
     def update(self, *args, **kwargs):
         """
@@ -95,14 +99,16 @@ class Enemy(Entities):
             return
         
         if not self.movement_done:
-            self.auto_move()
-            
-        if self.y >= self.target_y:
-            self.y = self.target_y
-            self.movement_done = True
-         
-            
-            
+            self.auto_move(move="down")
+            if hasattr(self, 'y'):
+                if self.y >= self.target_y:
+                    self.y = self.target_y
+                    self.movement_done = True
+            else:
+                if self.rect.y >= self.target_y:
+                    self.rect.y = self.target_y
+                    self.movement_done = True
+        
         super().update(*args, **kwargs)
 
     def shoot(self):
@@ -133,7 +139,5 @@ class Enemy(Entities):
 
         self.bullets_group.add(bullet) # Προσθήκη της σφαίρας στην ομάδα σφαιρών εχθρών
         self.last_shoot_time = now # Ενημέρωση του χρόνου του τελευταίου πυροβολισμού
-
-   
 
     

@@ -20,6 +20,8 @@ class Player(Entities):
         self.fire_delay = 250  # Χρόνος καθυστέρησης μεταξύ πυροβολισμών σε milliseconds
         self.last_fire_time = 0  # Χρόνος του τελευταίου πυροβολισμού
 
+        self.score = 0  # Αρχική βαθμολογία του παίκτη
+
     def shooting(self, bullets_group=None):
         now = pygame.time.get_ticks()
         if now - self.last_fire_time < self.fire_delay:
@@ -45,7 +47,8 @@ class Player(Entities):
     
     def score_point(self):
         # Λογική για την απόκτηση πόντου
-        print("Player scored a point!")
+        self.score += 1
+        print("Player scored a point! Score:", self.score)
 
     # Μέθοδος για χειρισμό εισόδου χρήστη και κίνησης του παίκτη
     def import_handler(self, SCREEN_WIDTH, bullets_group=None):

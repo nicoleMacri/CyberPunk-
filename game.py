@@ -46,12 +46,13 @@ player_bullets_group = pygame.sprite.Group()
 enemy_bullets_group = pygame.sprite.Group()
 enemies_group = pygame.sprite.Group()
 
+# Αρχικοποιήση αντικειμένου παίκτη
+player = Player(SCREEN_WIDTH, SCREEN_HEIGHT, 40, 40 , SKY_BLUE, 5)
+
 # Δημιουργία του wave manager
-wave_manager = EnemyWave(SCREEN_WIDTH, SCREEN_HEIGHT, enemies_group, enemy_bullets_group, player_bullets_group)
+wave_manager = EnemyWave(SCREEN_WIDTH, SCREEN_HEIGHT, enemies_group, enemy_bullets_group, player_bullets_group, player)
 wave_manager.new_enemy_wave() # Δημιουργία νέου κύματος εχθρών
 
-# Αρχικοποιήση αντικειμένου παίκτη
-player = Player(SCREEN_WIDTH, SCREEN_HEIGHT, 50, 50, SKY_BLUE, 5)
 
 # ------------------------------------
 # --------- GAME MAIN LOOP -----------
@@ -69,8 +70,13 @@ while not done:
     # Ενημέρωση σφαιρών
     player_bullets_group.update()
     enemy_bullets_group.update()
+
+    enemies_group.update()
+    
     # Ενημέρησω κύματος εχθρών
     wave_manager.update()
+
+    
     
     #----- Collisions ----- 
     hits = pygame.sprite.groupcollide(enemies_group, player_bullets_group, False, True)
