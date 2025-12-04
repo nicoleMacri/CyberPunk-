@@ -21,6 +21,8 @@ class Player(Entities):
         self.last_fire_time = 0  # Χρόνος του τελευταίου πυροβολισμού
 
         self.score = 0  # Αρχική βαθμολογία του παίκτη
+        self.max_health = 5  # Μέγιστη υγεία του παίκτη
+        self.health = 5  # Αρχική υγεία του παίκτη
 
     def shooting(self, bullets_group=None):
         now = pygame.time.get_ticks()
@@ -67,3 +69,9 @@ class Player(Entities):
             self.x = left_boundary
         if self.x > right_boundary:
             self.x = right_boundary
+
+    def take_damage(self, damage=1):
+        self.health -= damage
+        if self.health <= 0:
+            self.health = 0
+            print("player defeated")

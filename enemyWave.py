@@ -24,7 +24,7 @@ class EnemyWave:
 
         self.rows = None # Ορίζεται απο την random_grid_size
         self.cols = None # Ορίζεται απο την random_grid_size
-        self.spacing_x = 40  # Απόσταση μεταξύ στηλών
+        self.spacing_x = 60  # Απόσταση μεταξύ στηλών
         self.spacing_y = 40  # Απόσταση μεταξύ σειρών
 
         self.row_cooldown = 200  # ms
@@ -41,14 +41,29 @@ class EnemyWave:
         self.grid_speed = 2.0  # Ταχύτητα κίνησης του grid αριστερά-δεξιά 
         self.padding = 50
 
+        self.wave_number = 0  # Αριθμός τρέχοντος κύματος εχθρών
+        self.enemy_damage = 1  # Βασική ζημιά που προκαλεί κάθε εχθρός
 
     def random_grid_size(self):
         """
         Μέθοδος για την τυχαία ρύθμιση του μεγέθους του grid εχθρών.
-        Ορίζει τυχαίες τιμές για τις σειρές και τις στήλες.
+        Ορίζει τυχαίες τιμές για τις σειρές και τις στήλες με αυξανόμενη δυσκολία.
+        Η δυσκολία αυξάνεται ανα 3 κύματα εχθρών.
+
         """
-        self.rows = random.randint(2, 5)  # 2 έως 5 σειρές
-        self.cols = random.randint(2, 4)  # 3 έως 4 στήλες
+        difficulty = self.wave_number // 3  # Αύξηση δυσκολίας κάθε 3 κύματα
+        min_rows = 2 # ελάχιστος αριθμός σειρών και στηλών
+        max_rows = 4 # μέγιστος αριθμός σειρών και στηλών
+
+        max_rows = max_rows + difficulty
+        max_cols = max_rows + difficulty
+        rows_max = min (max_rows, 6) # μέγιστος αριθμός σειρών με όριο το 6
+        cols_max = min (max_cols, 6) # μέγιστος αριθμός στηλών με όριο το 6
+
+        self.rows = random.randint(min_rows, rows_max) # Τυχαίος αριθμός σειρών
+        self.cols = random.randint(min_rows, cols_max) # Τυχαίος αριθμός στηλών
+
+        
 
     def enemies_grid_create(self):
         """
@@ -127,6 +142,9 @@ class EnemyWave:
         Μέθοδος για την δημιουργία νέου κύματος(wave) εχθρών.
         Ουσιαστικά επαναφέρει το grid εχθρών.
         """
+        self.wave_number += 1  # Αύξηση του αριθμού κύματος
+        #if self.wave_number % 5 == 0:
+        #    self.enemy_damage += 1  # Αύξηση της ζημιάς των εχθρών κάθε 5 κύματα
         self.enemies_group.empty() # Αφαίρεση όλων των εχθρών από το group
         self.enemy_bullets_group.empty() # Αφαίρεση όλων των σφαιρών εχθρών από το group
         self.random_grid_size() # Τυχαία ρύθμιση μεγέθους grid

@@ -36,10 +36,11 @@ backgrpund_img = pygame.image.load("background.jpg").convert()
 # Ρυθμίσεις ρολογιού
 clock = pygame.time.Clock() 
 
-# Ρυθμίσεις γραμματοσειράς (Δεν χρησιμοποιούνται ακόμα)
-FONT_LARGE = pygame.font.SysFont('Arial', 72) # Θα αλλαχθεί με καποία που ταιρίαζει πιο πολύ στο θέμα
-FONT_MEDIUM = pygame.font.SysFont('Arial', 36)
-FONT_SMALL = pygame.font.SysFont('Arial', 24)
+# Ρυθμίσεις γραμματοσειράς 
+FONT_LARGE = pygame.font.Font("BlockCraftMedium-PVLzd.otf", 72)
+FONT_MEDIUM = pygame.font.Font("BlockCraftMedium-PVLzd.otf", 46)
+FONT_SMALL = pygame.font.Font("BlockCraftMedium-PVLzd.otf", 24) 
+
 
 # Δημιουργία groups για τα sprites 
 player_bullets_group = pygame.sprite.Group()
@@ -53,6 +54,7 @@ player = Player(SCREEN_WIDTH, SCREEN_HEIGHT, 40, 40 , SKY_BLUE, 5)
 wave_manager = EnemyWave(SCREEN_WIDTH, SCREEN_HEIGHT, enemies_group, enemy_bullets_group, player_bullets_group, player)
 wave_manager.new_enemy_wave() # Δημιουργία νέου κύματος εχθρών
 
+game_over = False
 
 # ------------------------------------
 # --------- GAME MAIN LOOP -----------
@@ -63,37 +65,51 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
+    
     # Επεξεργασία εισόδου χρήστη
-    player.import_handler(SCREEN_WIDTH, player_bullets_group)
+    if not game_over:
+        player.import_handler(SCREEN_WIDTH, player_bullets_group)
     
     #----- UPDATES -----
-    # Ενημέρωση σφαιρών
-    player_bullets_group.update()
-    enemy_bullets_group.update()
-
-    enemies_group.update()
-    
-    # Ενημέρησω κύματος εχθρών
-    wave_manager.update()
-
-    
-    
+    if not game_over:
+        player_bullets_group.update() # Ενημέρωση όλων των σφαιρών του παίκτη
+        enemy_bullets_group.update() # Ενημέρωση όλων των σφαιρών των εχθρών
+        enemies_group.update() # Ενημέρωση όλων των εχθρών 
+        wave_manager.update() # Ενημέρωση του wave manager
+ 
     #----- Collisions ----- 
     hits = pygame.sprite.groupcollide(enemies_group, player_bullets_group, False, True)
     for enemy, bullets in hits.items():
         enemy.take_damage(damage=len(bullets))
-
+    
+    if pygame.sprite.spritecollideany(player, enemy_bullets_group):
+        player.take_damage(damage=wave_manager.enemy_damage)
+        # Λογική για αφαίρεση της σφαίρας που χτύπησε τον παίκτη
+        collided_bullets = pygame.sprite.spritecollide(player, enemy_bullets_group, True)
+    
+    if player.health <= 0:
+        print("GAME OVER!")
+        game_over = True
+        
     # ----- ΣΧΕΔΙΑΣΗ -----
-    # Σχεδίαση φόντου
-    screen.blit(backgrpund_img, (0, 0))  
-    # Σχεδίαση του αντικειμένου Player
-    player.draw(screen)
-    # Σχεδίαση όλων των εχθρών από το group
-    enemies_group.draw(screen)
-    # Σχεδίαση όλων των σφαιρών από το group
-    player_bullets_group.draw(screen)
-    enemy_bullets_group.draw(screen)
+    screen.blit(backgrpund_img, (0, 0))  # Σχεδίαση φόντου
+    player.draw(screen) # Σχεδίαση παίκτη
+
+    score_text = FONT_MEDIUM.render(f"{player.score}", True, HOLLYWOOD_CERISE)
+    screen.blit(score_text, (10, 10)) # Σχεδίαση score παίκτη
+
+    health_text = FONT_MEDIUM.render(f"{player.health}", True, RUSSIAN_VIOLET)
+    screen.blit(health_text, (SCREEN_WIDTH - 30 , 10)) # Σχεδίαση ζωής παίκτη
+
+    enemies_group.draw(screen) # Σχεδίαση εχθρών
+    player_bullets_group.draw(screen) # Σχεδίαση σφαιρών παίκτη
+    enemy_bullets_group.draw(screen) # Σχεδίαση σφαιρών εχθρών
    
+    if game_over:
+        game_over_text = FONT_LARGE.render("GAME OVER", True, WHITE)
+        text_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+        screen.blit(game_over_text, text_rect)
+
     # Ενημέρωση της οθόνης
     pygame.display.flip()
     clock.tick(60)
