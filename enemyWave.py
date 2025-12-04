@@ -76,6 +76,7 @@ class EnemyWave:
                             shoot_delay = 2000,
                             row_height = self.spacing_y,
                             hp = 3)
+                
                 self.enemies_group.add(enemy) # Προσθήκη του εχθρού στο αντίστοιχο group
                 row_list.append(enemy) # Προσθήκη του εχθρού στη σειρά
             enemies_grid_local.append(row_list) # Προσθήκη της σειράς στο grid
@@ -113,7 +114,7 @@ class EnemyWave:
         self.random_grid_size() # Τυχαία ρύθμιση μεγέθους grid
         self.enemies_grid = self.enemies_grid_create() # Δημιουργία νέου grid εχθρών
         self.status_rows = self.status_rows_init() # Αρχικοποίηση της κατάστασης των σειρών
-        self.active_row = 0 # Ορισμός της πρώτης σειράς
+        self.active_row = self.rows - 1 # Ορισμός της πρώτης σειράς
         self.row_activate(self.active_row) # Ενεργοποίηση της πρώτης σειράς
         self.last_row_switch_time = pygame.time.get_ticks() # Επαναφορά του χρόνου αλλαγής σειράς
 
@@ -158,10 +159,10 @@ class EnemyWave:
         # Έλεγχος αν η ενεργή σειρά έχει καθαρίσει
         if self.row_cleared(self.active_row):
             # Μετακίνηση στην επόμενη σειρά αν υπάρχει
-            if self.active_row + 1 < self.rows:
+            if self.active_row - 1 >= 0:
                 # Έλεγχος αν έχει περάσει ο χρόνος cooldown για την αλλαγή σειράς
                 if now - self.last_row_switch_time >= self.row_cooldown:
-                    self.active_row += 1 # Μετακίνηση στην επόμενη σειρά
+                    self.active_row -= 1 # Μετακίνηση στην επόμενη σειρά
                     self.row_activate(self.active_row) # Ενεργοποίηση της επόμενης σειράς
                     self.last_row_switch_time = now
             # Διαφορετικά, αν δεν υπάρχουν άλλες σειρές, δημιουργία νέου κύματος        

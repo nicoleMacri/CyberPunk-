@@ -26,7 +26,6 @@ AUREOLIN = (245, 230, 18)
 ELECTRIC_INDIGO = (99, 57, 235)
 SKY_BLUE = (94, 217, 242)
 
-
 # Ρυθμίσεις παραθύρου
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 700
@@ -47,37 +46,12 @@ player_bullets_group = pygame.sprite.Group()
 enemy_bullets_group = pygame.sprite.Group()
 enemies_group = pygame.sprite.Group()
 
-# ------- Settings για το grid για τα αντικείμενα enemies ----------
-""" 
-Δημιουργία ενός πλέυγματος (grid) εχθρών με τυχαίο αριθμό σειρών και στηλών. Ουσιαστικά,
-δημιουργούμε μια 2D διάταξη εχθρών που τοποθετούνται σε συγκεκριμένες αποστάσεις (spacing) μεταξύ τους.
-, με οργανωμένη διάταξη στην οθόνη, ώστε να μπορούμε να τους διαχειριστούμε πιο εύκολα.
-"""
-# TODO: Να προστεθεί λογική για διαφορετικό μέγεθος grid αναλογα με το επιπεδο δυσκολίας
-rows = random.randint(2,4) # 2 εως 4 σειρές
-cols = random.randint(3,5) # 3 εως 6 στήλες
-spacing_x = 80 # Απόσταση μεταξύ στηλών
-spacing_y = 80 # Απόσταση μεταξύ σειρών
-
-grid_w = (cols - 0.5) * spacing_x # Πλάτος του grid
-grid_h = (rows - 1) * spacing_y # Ύψος του grid
-
-start_x = (SCREEN_WIDTH - grid_w) // 2 # Κεντράρισμα οριζόντια στο κέντρο της οθόνης
-start_y = (SCREEN_HEIGHT - grid_h) // 4 #Κεντράρισμα κάθετα στο άνω μέρος της οθόνης
-
-row_switch_cooldown = 200 
-last_row_switch_time = 0
-
-
 # Δημιουργία του wave manager
 wave_manager = EnemyWave(SCREEN_WIDTH, SCREEN_HEIGHT, enemies_group, enemy_bullets_group, player_bullets_group)
 wave_manager.new_enemy_wave() # Δημιουργία νέου κύματος εχθρών
 
 # Αρχικοποιήση αντικειμένου παίκτη
 player = Player(SCREEN_WIDTH, SCREEN_HEIGHT, 50, 50, SKY_BLUE, 5)
-
-
-
 
 # ------------------------------------
 # --------- GAME MAIN LOOP -----------
@@ -91,13 +65,10 @@ while not done:
     # Επεξεργασία εισόδου χρήστη
     player.import_handler(SCREEN_WIDTH, player_bullets_group)
     
-
     #----- UPDATES -----
-    
     # Ενημέρωση σφαιρών
     player_bullets_group.update()
     enemy_bullets_group.update()
-
     # Ενημέρησω κύματος εχθρών
     wave_manager.update()
     
@@ -106,16 +77,9 @@ while not done:
     for enemy, bullets in hits.items():
         enemy.take_damage(damage=len(bullets))
 
-     
-
-
-
-    
-    
-    
     # ----- ΣΧΕΔΙΑΣΗ -----
-    # Σχεδίαση
-    screen.blit(backgrpund_img, (0, 0))  # Σχεδίαση φόντου
+    # Σχεδίαση φόντου
+    screen.blit(backgrpund_img, (0, 0))  
     # Σχεδίαση του αντικειμένου Player
     player.draw(screen)
     # Σχεδίαση όλων των εχθρών από το group

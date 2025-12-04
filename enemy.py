@@ -74,6 +74,8 @@ class Enemy(Entities):
 
     # Μέθοδος για την αυτοματοποιημένη κίνηση του εχθρού
     def auto_move(self):   
+        if self.movement_done:
+            return
         if self.move == "left":
             self.move_left(self.speed)
         elif self.move == "right":
@@ -89,16 +91,17 @@ class Enemy(Entities):
         Μέθοδος για την ενημέρωση της κατάστασης του εχθρού.
 
         """
-
         if not self.alive:
             return
         
-       
         if not self.movement_done:
             self.auto_move()
-            if self.y >= self.target_y:
-                self.y = self.target_y
-                self.movement_done = True
+            
+        if self.y >= self.target_y:
+            self.y = self.target_y
+            self.movement_done = True
+         
+            
             
         super().update(*args, **kwargs)
 
