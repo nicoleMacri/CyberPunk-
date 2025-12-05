@@ -142,6 +142,7 @@ class EnemyWave:
         Μέθοδος για την δημιουργία νέου κύματος(wave) εχθρών.
         Ουσιαστικά επαναφέρει το grid εχθρών.
         """
+        self.grid_speed += 0.2  # Αύξηση της ταχύτητας του grid κάθε νέο κύμα
         self.wave_number += 1  # Αύξηση του αριθμού κύματος
         #if self.wave_number % 5 == 0:
         #    self.enemy_damage += 1  # Αύξηση της ζημιάς των εχθρών κάθε 5 κύματα
@@ -153,8 +154,12 @@ class EnemyWave:
         self.active_row = self.rows - 1 # Ορισμός της πρώτης σειράς
         self.row_activate(self.active_row) # Ενεργοποίηση της πρώτης σειράς
         self.last_row_switch_time = pygame.time.get_ticks() # Επαναφορά του χρόνου αλλαγής σειράς
-
         self.player_bullets_group.empty() # Αφαίρεση όλων των σφαιρών παίκτη από το group
+
+        new_shoot_delay = 1.0 - 0.1 * (self.wave_number // 3)
+        for row in self.enemies_grid:
+            for enemy in row:
+                enemy.shoot_delay = max(200, int(enemy.shoot_delay * new_shoot_delay)) # Ελαχιστοποίηση του shoot_delay στα 500 ms
 
     def row_cleared(self, idx):
         """
@@ -178,6 +183,9 @@ class EnemyWave:
     def enemies_grid_move(self):
         """
         Μέθοδος για την κίνηση του grid εχθρών αριστερά-δεξιά.
+        Σημειώση για διόρθωση: Φαίνεται πως η κίνησ προς τα αριστερά γίνεται πιο γρήγορα 
+        απο την κίνηση προς τα δεξιά. Να βρούμε γιατι και να το διορθώσουμε.
+        TODO: να υπολογίζονται τα όρια του grid βάσει των θέσεων των ζωντανών εχθρών.
         """
         
         min_x = float('inf') # Αριστερό άκρο του grid
