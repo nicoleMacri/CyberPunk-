@@ -73,11 +73,6 @@ class Entities(pygame.sprite.Sprite):
         self._y += s
         self.rect.y = int(self._y)
 
-    # Μέθοδος για πυροβολισμό
-    def shooting(self):
-        # Θα επεκταθει στις υποκλάσεις
-        print("Shooting action executed")
-
     def update(self, *args, **kwargs):
         """
         Βασική μέθοδος για την ενημέρωση κάθε frame. Οι υποκλάσεις μποροούν να την 
