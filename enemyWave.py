@@ -8,6 +8,18 @@ class EnemyWave:
     Περιλαμβάνει μεθόδους για την δημιουργία grid εχθρών, την δημιουργία νέου κύματος εχθρών, την ενημέρωση της κατάστασης των κυμάτων κ.α.
 
     """
+
+    # Ρυθμίσεις για τα επίπεδα δυσκολίας
+    LEVELS = [
+            
+            (2,3),  # Επίπεδο 1: 2-3 σειρές, 2-3 στήλες
+            (3,4),  # Επίπεδο 2: 3-4 σειρές, 3-4 στήλες
+            (4,5),  # Επίπεδο 3: 4-5    σειρές, 4-5 στήλες
+            (5,6),  # Επίπεδο 4: 5-6 σειρές, 5-6 στήλες
+            (6,6)   # Επίπεδο 5: 6 σειρές, 6 στήλες
+        ]
+
+
     def __init__(self, scr_width, scr_height, enemies_group, enemy_bullets_group, player_bullets_group, player):
         self.scr_width = scr_width # Πλάτος οθόνης
         self.scr_height = scr_height # Ύψος οθόνης
@@ -51,17 +63,24 @@ class EnemyWave:
         Η δυσκολία αυξάνεται ανα 3 κύματα εχθρών.
 
         """
-        difficulty = self.wave_number // 3  # Αύξηση δυσκολίας κάθε 3 κύματα
-        min_rows = 2 # ελάχιστος αριθμός σειρών και στηλών
-        max_rows = 4 # μέγιστος αριθμός σειρών και στηλών
+        # πρέπει να αλλαχθεί ο τρόπος που αυξάνεται η δυσκολία σε σχέση με την τυχαίοτητα
 
-        max_rows = max_rows + difficulty
-        max_cols = max_rows + difficulty
-        rows_max = min (max_rows, 6) # μέγιστος αριθμός σειρών με όριο το 6
-        cols_max = min (max_cols, 6) # μέγιστος αριθμός στηλών με όριο το 6
+       
+        #difficulty = self.wave_number // 3  # Αύξηση δυσκολίας κάθε 3 κύματα
+        #min_rows = 2 # ελάχιστος αριθμός σειρών και στηλών
+        #max_rows = 4 # μέγιστος αριθμός σειρών και στηλών
 
-        self.rows = random.randint(min_rows, rows_max) # Τυχαίος αριθμός σειρών
-        self.cols = random.randint(min_rows, cols_max) # Τυχαίος αριθμός στηλών
+        #max_rows = max_rows + difficulty
+        #max_cols = max_rows + difficulty
+        #rows_max = min (max_rows, 6) # μέγιστος αριθμός σειρών με όριο το 6
+        #cols_max = min (max_cols, 6) # μέγιστος αριθμός στηλών με όριο το 6
+
+        level = min(self.wave_number // 5, len(self.LEVELS) -1)  # Αύξηση δυσκολίας κάθε 5 κύματα
+        base_rows, base_cols = self.LEVELS[level]
+
+
+        self.rows = random.randint(base_rows - 1, base_rows) # Τυχαίος αριθμός σειρών
+        self.cols = random.randint(base_cols - 1, base_cols) # Τυχαίος αριθμός στηλών
 
         
 
@@ -162,7 +181,7 @@ class EnemyWave:
             for enemy in row:
                 enemy.shoot_delay = max(200, int(enemy.shoot_delay * new_shoot_delay)) # Ελαχιστοποίηση του shoot_delay στα 500 ms
             print("shoot_delay change")
-            
+
         print(f"New Enemy Wave: {self.wave_number} | Grid Size: {self.rows}x{self.cols} | Grid Speed: {self.grid_speed} | Enemy Damage: {self.enemy_damage}")
 
     def row_cleared(self, idx):
