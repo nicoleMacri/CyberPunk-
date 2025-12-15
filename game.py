@@ -63,7 +63,7 @@ done = False
 while not done:
     now = pygame.time.get_ticks()
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+          if event.type == pygame.QUIT:
             done = True
     
     # Επεξεργασία εισόδου χρήστη

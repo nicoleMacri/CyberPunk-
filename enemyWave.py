@@ -156,10 +156,14 @@ class EnemyWave:
         self.last_row_switch_time = pygame.time.get_ticks() # Επαναφορά του χρόνου αλλαγής σειράς
         self.player_bullets_group.empty() # Αφαίρεση όλων των σφαιρών παίκτη από το group
 
-        new_shoot_delay = 1.0 - 0.1 * (self.wave_number // 3)
+        # Προσαρμογή του shoot_delay των εχθρών βάσει του κύματος εχθρών. Αύτο έχει ως αποτέλεσμα οι εχθροί να πυροβολούνε πιο συχνά.
+        new_shoot_delay = 1.0 - 0.1 * (self.wave_number // 3) # Μείωση του shoot_delay κάθε 3 κύματα
         for row in self.enemies_grid:
             for enemy in row:
                 enemy.shoot_delay = max(200, int(enemy.shoot_delay * new_shoot_delay)) # Ελαχιστοποίηση του shoot_delay στα 500 ms
+            print("shoot_delay change")
+            
+        print(f"New Enemy Wave: {self.wave_number} | Grid Size: {self.rows}x{self.cols} | Grid Speed: {self.grid_speed} | Enemy Damage: {self.enemy_damage}")
 
     def row_cleared(self, idx):
         """
@@ -187,15 +191,24 @@ class EnemyWave:
         απο την κίνηση προς τα δεξιά. Να βρούμε γιατι και να το διορθώσουμε.
         TODO: να υπολογίζονται τα όρια του grid βάσει των θέσεων των ζωντανών εχθρών.
         """
+        alive_enemies = [
+            enemy for row in self.enemies_grid for enemy in row if enemy.alive
+        ]
+
+        if not alive_enemies:
+            return  # Αν δεν υπάρχουν ζωντανοί εχθροί, δεν κάνουμε τίποτα
+
         
-        min_x = float('inf') # Αριστερό άκρο του grid
-        max_x = float('-inf') # Δεξί άκρο του grid
-        for row in self.enemies_grid:
-            for enemy in row:
-                if enemy.rect.x < min_x:
-                    min_x = enemy.rect.x
-                if enemy.rect.x + enemy.rect.width > max_x:
-                    max_x = enemy.rect.x + enemy.rect.width
+        min_x = min(enemy.rect.left for enemy in alive_enemies) 
+        max_x = max(enemy.rect.right for enemy in alive_enemies)
+        #min_x = float('inf') # Αριστερό άκρο του grid
+        #max_x = float('-inf') # Δεξί άκρο του grid
+        #for row in self.enemies_grid:
+        #    for enemy in row:
+        #      if enemy.rect.x < min_x:
+        #            min_x = enemy.rect.x
+        #        if enemy.rect.x + enemy.rect.width > max_x:
+        #           max_x = enemy.rect.x + enemy.rect.width
 
         
 
