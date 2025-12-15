@@ -19,11 +19,11 @@ from enemyWave import EnemyWave
 pygame.init()
 
 # Ορισμός καταστάσεων παιχνιδιού
-MENU = "menu"
-GAME = "game"
-PAUSE = "pause"
-HISHSCORES = "highscores"
-GAMEOVER = "gameover"
+MENU = 0
+GAME = 1
+PAUSE = 2
+HISHSCORES = 3
+GAMEOVER = 4
 
 current_state = MENU
 sound_on = True 
@@ -60,7 +60,7 @@ center_x = SCREEN_WIDTH // 2 - btn_w // 2
 menu_buttons =  [
     Button(center_x, 250, btn_w, btn_h, "NEW GAME", FONT_SMALL, ELECTRIC_INDIGO, WHITE),
     Button(center_x, 320, btn_w, btn_h, "HIGH SCORES", FONT_SMALL, ELECTRIC_INDIGO, WHITE),
-    Button(center_x, 390, btn_w, btn_h, "TOGGLE SOUND", FONT_SMALL, ELECTRIC_INDIGO, WHITE),
+    Button(center_x, 390, btn_w, btn_h,"SOUND SETTINGS", FONT_SMALL, ELECTRIC_INDIGO, WHITE),
     Button(center_x, 460, btn_w, btn_h, "EXIT", FONT_SMALL, ELECTRIC_INDIGO, WHITE),
     ]
 
@@ -90,14 +90,23 @@ while not done:
 
 
     if current_state == MENU:
-        for button in menu_buttons:
-            button.handle_event(event)
-
+        for i,button in enumerate(menu_buttons):
+            if button.is_clicked(event):
+                if i == 0:  # NEW GAME
+                    current_state = GAME
+                elif i == 1:  # HIGH SCORES
+                    current_state = HISHSCORES
+                elif i == 2:  # SOUND SETTINGS
+                    sound_on = not sound_on
+                elif i == 3:  # EXIT
+                    done = True
+            
         screen.fill(BLACK)
         title_text = FONT_LARGE.render("CYBER RUNNER", True, WHITE)
         screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 100))
         for button in menu_buttons:
             button.draw(screen)
+
     elif current_state == GAME:
     # Επεξεργασία εισόδου χρήστη
         if not game_over:
