@@ -18,6 +18,8 @@ class EnemyWave:
             (5,6),  # Επίπεδο 4: 5-6 σειρές, 5-6 στήλες
             (6,6)   # Επίπεδο 5: 6 σειρές, 6 στήλες
         ]
+    
+    #
 
 
     def __init__(self, scr_width, scr_height, enemies_group, enemy_bullets_group, player_bullets_group, player):

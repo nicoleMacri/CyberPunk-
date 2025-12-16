@@ -20,14 +20,18 @@ pygame.init()
 
 # Ορισμός καταστάσεων παιχνιδιού
 MENU = 0
-GAME_ONE_player1 = 1
-GAME_TWO_player1 = 2
-PAUSE = 3
-HISHSCORES = 4
-GAMEOVER = 5
+GAME = 1
+PAUSE = 2
+HISHSCORES = 3
+GAMEOVER = 4
 
-current_state = MENU
-sound_on = True 
+current_state = MENU # Αρχική κατάσταση παιχνιδιού
+sound_on = True #?
+
+# Ορισμός mode παιχνιδιού
+ONE_PLAYER = 0
+TWO_PLAYERS = 1
+game_mode = ONE_PLAYER
 
 # Ορισμός χρωμάτων
 WHITE = (255, 255, 255)
@@ -53,8 +57,8 @@ FONT_LARGE = pygame.font.Font("BlockCraftMedium-PVLzd.otf", 72)
 FONT_MEDIUM = pygame.font.Font("BlockCraftMedium-PVLzd.otf", 46)
 FONT_SMALL = pygame.font.Font("BlockCraftMedium-PVLzd.otf", 24) 
 
-# Δημιουργία κουμπίων για το μενού
-btn_w = 200
+# Ρυθμίσεις κουμπιών για το μενού
+btn_w = 300
 btn_h = 50
 center_x = SCREEN_WIDTH // 2 - btn_w // 2
 
@@ -67,18 +71,45 @@ menu_buttons =  [
 
 # Δημιουργία groups για τα sprites 
 player1_bullets_group = pygame.sprite.Group()
+player2_bullets_group = pygame.sprite.Group()
 enemy_bullets_group = pygame.sprite.Group()
 enemies_group = pygame.sprite.Group()
 
-# Αρχικοποιήση αντικειμένου παίκτη
-player1 = Player(SCREEN_WIDTH, SCREEN_HEIGHT, 40, 40 , SKY_BLUE, 5)
-#player2 = Player(SCREEN_WIDTH, SCREEN_HEIGHT, 40, 40 , AUREOLIN, 5)
+# Αρχικοποιήση αντικειμένων παίκτη
+player1 = None
+player2 = None
 
 # Δημιουργία του wave manager
-wave_manager = EnemyWave(SCREEN_WIDTH, SCREEN_HEIGHT, enemies_group, enemy_bullets_group, player1_bullets_group, player1)
-wave_manager.new_enemy_wave() # Δημιουργία νέου κύματος εχθρών
+#wave_manager = EnemyWave(SCREEN_WIDTH, SCREEN_HEIGHT, enemies_group, enemy_bullets_group, player1_bullets_group, player1)
+#wave_manager.new_enemy_wave() # Δημιουργία νέου κύματος εχθρών
 
 game_over = False
+
+
+# Συνάρτηση για την έναρξη νέου παιχνιδιού
+def new_game():
+    global player1, player2, game_over, wave_manager
+    # Επαναφορά μεταβλητών παιχνιδιού
+    game_over = False
+
+    # Δημιουργία νέου παίκτη1
+    player1 = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 80, 40, 40, SKY_BLUE, 5, controls="arrows")
+    
+    # Δημιουργία νέου παίκτη2 (αν υποστηρίζεται)
+    if game_mode == TWO_PLAYERS:
+        player2 = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, 40, 40, ELECTRIC_INDIGO, 5, controls="wasd")
+    else:
+        player2 = None
+    
+    # Επαναφορά των groups των sprites
+    player1_bullets_group.empty()
+    player2_bullets_group.empty()
+    enemy_bullets_group.empty()
+    enemies_group.empty()
+
+    # Επαναφορά του wave manager
+    wave_manager = EnemyWave(SCREEN_WIDTH, SCREEN_HEIGHT, enemies_group, enemy_bullets_group, player1_bullets_group, player1)
+    wave_manager.new_enemy_wave() # Δημιουργία νέου κύματος εχθρών
 
 # ------------------------------------
 # --------- GAME MAIN LOOP -----------
@@ -95,10 +126,14 @@ while not done:
         for i,button in enumerate(menu_buttons):
             if button.is_clicked(event):
                 if i == 0:  # NEW GAME - ONE player1
-                    current_state = GAME_ONE_player1
+                    game_mode = ONE_PLAYER
+                    current_state = GAME
+                    new_game()
                 elif i == 1:  # NEW GAME - TWO player1
                     # Λογική για νέο παιχνίδι δύο παικτών (αν υποστηρίζεται)
-                    current_state = GAME_TWO_player1
+                    current_state = GAME
+                    game_mode = TWO_PLAYERS
+                    new_game()
                 elif i == 2:  # HIGHSCORES
                     current_state = HISHSCORES
                 elif i == 3:  # EXIT
@@ -110,37 +145,53 @@ while not done:
         for button in menu_buttons:
             button.draw(screen)
 
-    elif current_state == GAME_ONE_player1:
-    # Επεξεργασία εισόδου χρήστη
-        if not game_over:
-            player1.import_handler(SCREEN_WIDTH, player1_bullets_group)
+    elif current_state == GAME and not game_over:
+        # Επεξεργασία εισόδου χρήστη
+        player1.import_handler(SCREEN_WIDTH, player1_bullets_group)
         
-            #----- UPDATES -----
-            if not game_over:
-                player1_bullets_group.update() # Ενημέρωση όλων των σφαιρών του παίκτη
-                enemy_bullets_group.update() # Ενημέρωση όλων των σφαιρών των εχθρών
-                enemies_group.update() # Ενημέρωση όλων των εχθρών 
-                wave_manager.update() # Ενημέρωση του wave manager
+        if game_mode == TWO_PLAYERS:
+            player2.import_handler(SCREEN_WIDTH, player2_bullets_group)
+
+        #----- UPDATES -----
+        player1_bullets_group.update() # Ενημέρωση όλων των σφαιρών του παίκτη
+        player2_bullets_group.update() # Ενημέρωση όλων των σφαιρών του παίκτη 2 (αν υπάρχει)
+        enemy_bullets_group.update() # Ενημέρωση όλων των σφαιρών των εχθρών
+        enemies_group.update() # Ενημέρωση όλων των εχθρών 
+        wave_manager.update() # Ενημέρωση του wave manager
         
-            #----- Collisions ----- 
-            hits = pygame.sprite.groupcollide(enemies_group, player1_bullets_group, False, True)
-            for enemy, bullets in hits.items():
-                enemy.take_damage(damage=len(bullets))
+        #----- Collisions ----- 
+        hits = pygame.sprite.groupcollide(enemies_group, player1_bullets_group, False, True)
+        for enemy, bullets in hits.items():
+            enemy.take_damage(damage=len(bullets))
+
+        hits2 = pygame.sprite.groupcollide(enemies_group, player2_bullets_group, False, True)
+        for enemy, bullets in hits2.items():
+            enemy.take_damage(damage=len(bullets)) 
+
+        if pygame.sprite.spritecollideany(player1, enemy_bullets_group):
+            player1.take_damage(damage=wave_manager.enemy_damage)
+            # Λογική για αφαίρεση της σφαίρας που χτύπησε τον παίκτη
+            collided_bullets = pygame.sprite.spritecollide(player1, enemy_bullets_group, True)
+        
+        if game_mode == TWO_PLAYERS:
+            if pygame.sprite.spritecollideany(player2, enemy_bullets_group):
+                player2.take_damage(damage=wave_manager.enemy_damage)
+                # Λογική για αφαίρεση της σφαίρας που χτύπησε τον παίκτη 2
+                collided_bullets = pygame.sprite.spritecollide(player2, enemy_bullets_group, True)
             
-            if pygame.sprite.spritecollideany(player1, enemy_bullets_group):
-                player1.take_damage(damage=wave_manager.enemy_damage)
-                # Λογική για αφαίρεση της σφαίρας που χτύπησε τον παίκτη
-                collided_bullets = pygame.sprite.spritecollide(player1, enemy_bullets_group, True)
-            
-            if player1.health <= 0:
-                print("GAME OVER!")
-                game_over = True
-                current_state = GAMEOVER
+        # ----- GAME OVER ΕΛΕΓΧΟΣ -----
+        if game_mode == ONE_PLAYER and player1.health <= 0:
+            current_state = GAMEOVER
+        
+        if game_mode == TWO_PLAYERS and player1.health <= 0 and player2.health <= 0:
+            current_state = GAMEOVER
                 
             
         # ----- ΣΧΕΔΙΑΣΗ -----
         screen.blit(backgrpund_img, (0, 0))  # Σχεδίαση φόντου
         player1.draw(screen) # Σχεδίαση παίκτη
+        if game_mode == TWO_PLAYERS and player2:
+            player2.draw(screen) # Σχεδίαση παίκτη 2
 
         score_text = FONT_MEDIUM.render(f"{player1.score}", True, HOLLYWOOD_CERISE)
         screen.blit(score_text, (10, 10)) # Σχεδίαση score παίκτη
@@ -150,11 +201,15 @@ while not done:
 
         enemies_group.draw(screen) # Σχεδίαση εχθρών
         player1_bullets_group.draw(screen) # Σχεδίαση σφαιρών παίκτη
+        player2_bullets_group.draw(screen) # Σχεδίαση σφαιρών παίκτη 2 (αν υπάρχει)
         enemy_bullets_group.draw(screen) # Σχεδίαση σφαιρών εχθρών
     
 
-    elif current_state == GAME_TWO_player1:
-        pass # Λογική για το παιχνίδι δύο παικτών 
+
+
+    elif current_state == HISHSCORES:
+        print("HIGHSCORES state")
+        pass # Λογική για την εμφάνιση των υψηλών σκορ
 
     elif current_state == GAMEOVER:
         #screen.fill(BLACK)

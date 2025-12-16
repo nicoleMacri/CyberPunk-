@@ -10,7 +10,7 @@ class Player(Entities):
     του παίκτη. Δέχεται *groups προαιρετικά για να προστεθεί σε ομάδες sprite. (Ισως
     να μην είναι απαραίτητο εδώ).
     """
-    def __init__(self, scr_width, scr_height, width, height, color, speed, *groups):
+    def __init__(self, scr_width, scr_height, width, height, color, speed, controls, *groups):
         start_x = int((scr_width - width)/ 2)
         start_y = int(scr_height - height - 10)
         
@@ -23,6 +23,7 @@ class Player(Entities):
         self.score = 0  # Αρχική βαθμολογία του παίκτη
         self.max_health = 5  # Μέγιστη υγεία του παίκτη
         self.health = 5  # Αρχική υγεία του παίκτη
+        self.controls = controls  # Πλήκτρα ελέγχου του παίκτη
 
     def shooting(self, bullets_group=None):
         now = pygame.time.get_ticks()
@@ -55,12 +56,20 @@ class Player(Entities):
     # Μέθοδος για χειρισμό εισόδου χρήστη και κίνησης του παίκτη
     def import_handler(self, SCREEN_WIDTH, bullets_group=None):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
-            self.shooting(bullets_group)  # Ενέργεια πυροβολισμού
-        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-            self.move_left(None)  # Χρησιμοποιεί self.speed ως default
-        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-            self.move_right(None)  # Χρησιμοποιεί self.speed ως default
+        if self.controls == "wasd":
+            if keys[pygame.K_SPACE]:
+                self.shooting(bullets_group)  # Ενέργεια πυροβολισμού
+            if keys[pygame.K_a]:
+                self.move_left(None)  # Χρησιμοποιεί self.speed ως default
+            if keys[pygame.K_d]:
+                self.move_right(None)  # Χρησιμοποιεί self.speed ως default
+        elif self.controls == "arrows":
+            if keys[pygame.K_RCTRL]:
+                self.shooting(bullets_group)  # Ενέργεια πυροβολισμού
+            if keys[pygame.K_LEFT]:
+                self.move_left(None)  # Χρησιμοποιεί self.speed ως default
+            if keys[pygame.K_RIGHT]:
+                self.move_right(None)  # Χρησιμοποιεί self.speed ως default
         #Περιορισμός του ορθογωνίου να μην βγαίνει εκτός οθόνης
         margin = 50
         left_boundary = margin
