@@ -44,6 +44,16 @@ class Enemy(Entities):
         
         self.target_y = fin_y
 
+        # ----- sprite εχθρού -----
+        self.image = pygame.image.load("assets/server_image_.png").convert_alpha() # Φόρτωση εικόνας με διαφάνεια
+
+        #w = int(self.image.get_width() * 1.5)  # Κλιμάκωση πλάτους
+        #h = int(self.image.get_height() * 1.5)  # Κλιμάκωση ύψους
+        #self.image = pygame.transform.scale(self.image, (w, h))  # Κλιμάκωση εικόνας
+
+        self.rect = self.image.get_rect() 
+        self.rect.center =(self.x,self.y) # Κεντράρισμα του rect στην αρχική θέση
+
     def activate(self, row_height=None):
         """
         Μέθοδος για την ενεργοποίηση του εχθρού.

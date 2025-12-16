@@ -207,8 +207,8 @@ while not done:
         health_text = FONT_MEDIUM.render(f"{player1.health}", True, RUSSIAN_VIOLET)
         screen.blit(health_text, (SCREEN_WIDTH - 30 , 10)) # Σχεδίαση ζωής παίκτη
 
-        health_text2 = FONT_MEDIUM.render(f"{player2.health}", True, RUSSIAN_VIOLET)
-        screen.blit(health_text2, (SCREEN_WIDTH - 30 , 60)) # Σχεδίαση ζωής παίκτη 2
+        #health_text2 = FONT_MEDIUM.render(f"{player2.health}", True, RUSSIAN_VIOLET)
+        # screen.blit(health_text2, (SCREEN_WIDTH - 30 , 60)) # Σχεδίαση ζωής παίκτη 2
 
         enemies_group.draw(screen) # Σχεδίαση εχθρών
         player1_bullets_group.draw(screen) # Σχεδίαση σφαιρών παίκτη
