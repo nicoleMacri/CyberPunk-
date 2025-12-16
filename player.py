@@ -48,6 +48,10 @@ class Player(Entities):
         self.rect = self.image.get_rect() 
         self.rect.center =(self.x,self.y) # Κεντράρισμα του rect στην αρχική θέση
 
+        # ----- ρυθμίσεις για ήχο παίκτη -----
+        self.shoot_sound = pygame.mixer.Sound("assets/plaeyer_shooting.wav")
+        self.shoot_sound.set_volume(0.2)  # Ρύθμιση έντασης ήχου
+
         # ----- animation παίκτη -----
         #self.animations = {
         #    "idle": load_player_frames(pygame.image.load("assets/Cyborg_idle.png").convert_alpha(), 32, 32),
@@ -79,6 +83,7 @@ class Player(Entities):
             bullets_group.add(bullet)
 
         self.last_fire_time = now
+        self.shoot_sound.play()  # Αναπαραγωγή ήχου πυροβολισμού
         #self.set_animation("attack")
         print("Player is shooting!")
         return bullet

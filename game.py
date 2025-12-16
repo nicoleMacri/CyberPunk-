@@ -6,6 +6,7 @@
 
 """
 import pygame
+
 import random
 from ui import Button
 
@@ -17,6 +18,7 @@ from enemyWave import EnemyWave
 
 # Αρχικοποίηση της βιβλιοθήκης Pygame
 pygame.init()
+pygame.mixer.init()
 
 # Ορισμός καταστάσεων παιχνιδιού
 MENU = 0
@@ -79,9 +81,10 @@ enemies_group = pygame.sprite.Group()
 player1 = None
 player2 = None
 
-# Δημιουργία του wave manager
-#wave_manager = EnemyWave(SCREEN_WIDTH, SCREEN_HEIGHT, enemies_group, enemy_bullets_group, player1_bullets_group, player1)
-#wave_manager.new_enemy_wave() # Δημιουργία νέου κύματος εχθρών
+# Ρυθμίσεις backgound ήχου
+pygame.mixer.music.load("assets/background_music.wav")
+pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.play(-1)  # Αναπαραγωγή σε βρόχο
 
 game_over = False
 
