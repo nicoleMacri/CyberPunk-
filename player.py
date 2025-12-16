@@ -40,6 +40,11 @@ class Player(Entities):
 
         # ----- sprite παικτή -----
         self.image = pygame.image.load("assets/Cyborg_idle_.png").convert_alpha() # Φόρτωση εικόνας με διαφάνεια
+
+        w = self.image.get_width() * 2  # Κλιμάκωση πλάτους
+        h = self.image.get_height() * 2  # Κλιμάκωση ύψους
+        self.image = pygame.transform.scale(self.image, (w, h))  # Κλιμάκωση εικόνας
+
         self.rect = self.image.get_rect() 
         self.rect.center =(self.x,self.y) # Κεντράρισμα του rect στην αρχική θέση
 
