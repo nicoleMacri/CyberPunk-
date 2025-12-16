@@ -93,11 +93,11 @@ def new_game():
     game_over = False
 
     # Δημιουργία νέου παίκτη1
-    player1 = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 80, 40, 40, SKY_BLUE, 5, controls="arrows")
+    player1 = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 80, 40, 40, SKY_BLUE, 5, controls="arrows" , image_path="assets/Cyborg_idle_.png")
     
     # Δημιουργία νέου παίκτη2 (αν υποστηρίζεται)
     if game_mode == TWO_PLAYERS:
-        player2 = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, 40, 40, ELECTRIC_INDIGO, 5, controls="wasd")
+        player2 = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, 40, 40, ELECTRIC_INDIGO, 5, controls="wasd", image_path="assets/Punk_idle_.png")
     else:
         player2 = None
     
@@ -207,8 +207,8 @@ while not done:
         health_text = FONT_MEDIUM.render(f"{player1.health}", True, RUSSIAN_VIOLET)
         screen.blit(health_text, (SCREEN_WIDTH - 30 , 10)) # Σχεδίαση ζωής παίκτη
 
-        #health_text2 = FONT_MEDIUM.render(f"{player2.health}", True, RUSSIAN_VIOLET)
-        #screen.blit(health_text2, (SCREEN_WIDTH - 30 , 60)) # Σχεδίαση ζωής παίκτη 2
+        health_text2 = FONT_MEDIUM.render(f"{player2.health}", True, RUSSIAN_VIOLET)
+        screen.blit(health_text2, (SCREEN_WIDTH - 30 , 60)) # Σχεδίαση ζωής παίκτη 2
 
         enemies_group.draw(screen) # Σχεδίαση εχθρών
         player1_bullets_group.draw(screen) # Σχεδίαση σφαιρών παίκτη

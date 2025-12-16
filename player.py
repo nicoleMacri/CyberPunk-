@@ -23,7 +23,7 @@ class Player(Entities):
     του παίκτη. Δέχεται *groups προαιρετικά για να προστεθεί σε ομάδες sprite. (Ισως
     να μην είναι απαραίτητο εδώ).
     """
-    def __init__(self, scr_width, scr_height, width, height, color, speed, controls, *groups):
+    def __init__(self, scr_width, scr_height, width, height, color, speed, controls, image_path, *groups):
         start_x = int((scr_width - width)/ 2)
         start_y = int(scr_height - height - 10)
         
@@ -39,10 +39,10 @@ class Player(Entities):
         self.controls = controls  # Πλήκτρα ελέγχου του παίκτη
 
         # ----- sprite παικτή -----
-        self.image = pygame.image.load("assets/Cyborg_idle_.png").convert_alpha() # Φόρτωση εικόνας με διαφάνεια
+        self.image = pygame.image.load(image_path).convert_alpha() # Φόρτωση εικόνας με διαφάνεια
 
-        w = self.image.get_width() * 2  # Κλιμάκωση πλάτους
-        h = self.image.get_height() * 2  # Κλιμάκωση ύψους
+        w = int(self.image.get_width() * 1.5)  # Κλιμάκωση πλάτους
+        h = int(self.image.get_height() * 1.5)  # Κλιμάκωση ύψους
         self.image = pygame.transform.scale(self.image, (w, h))  # Κλιμάκωση εικόνας
 
         self.rect = self.image.get_rect() 
