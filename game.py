@@ -159,32 +159,40 @@ while not done:
         enemies_group.update() # Ενημέρωση όλων των εχθρών 
         wave_manager.update() # Ενημέρωση του wave manager
         
-        #----- Collisions ----- 
-        hits = pygame.sprite.groupcollide(enemies_group, player1_bullets_group, False, True)
-        for enemy, bullets in hits.items():
-            enemy.take_damage(damage=len(bullets))
-
-        hits2 = pygame.sprite.groupcollide(enemies_group, player2_bullets_group, False, True)
-        for enemy, bullets in hits2.items():
-            enemy.take_damage(damage=len(bullets)) 
-
-        if pygame.sprite.spritecollideany(player1, enemy_bullets_group):
-            player1.take_damage(damage=wave_manager.enemy_damage)
-            # Λογική για αφαίρεση της σφαίρας που χτύπησε τον παίκτη
-            collided_bullets = pygame.sprite.spritecollide(player1, enemy_bullets_group, True)
+        #----- COLLISIONS AND DAMAGE ----- 
         
-        if game_mode == TWO_PLAYERS:
-            if pygame.sprite.spritecollideany(player2, enemy_bullets_group):
+        # Έλεγχος σύγκρουσης σφαιρών εχθρών με τον παίκτη
+        if player1 and player1.alive:
+            collided_bullets_p1 = pygame.sprite.spritecollide(player1, enemy_bullets_group, True)
+            for bullet in collided_bullets_p1:
+                player1.take_damage(damage=wave_manager.enemy_damage)
+        
+        # Έλεγχος σύγκρουσης σφαιρών εχθρών με τον παίκτη 2 (αν υπάρχει)
+        if player2 and player2.alive:
+            collided_bullets_p2 = pygame.sprite.spritecollide(player2, enemy_bullets_group, True)
+            for bullet in collided_bullets_p2:
                 player2.take_damage(damage=wave_manager.enemy_damage)
-                # Λογική για αφαίρεση της σφαίρας που χτύπησε τον παίκτη 2
-                collided_bullets = pygame.sprite.spritecollide(player2, enemy_bullets_group, True)
-            
+
+
+        # Έλεγχος σύγκρουσης σφαιρών του παίκτη με εχθρούς
+        hits = pygame.sprite.groupcollide(enemies_group, player1_bullets_group, False, True) # Έλεγχος σύγκρουσης σφαιρών του παίκτη με εχθρούς
+        for enemy, bullets in hits.items():
+            enemy.take_damage(damage=len(bullets)) # Αφαίρεση ζωής από τον εχθρό για κάθε σφαίρα που τον χτύπησε
+
+        # Έλεγχος σύγκρουσης σφαιρών του παίκτη 2 με εχθρούς (αν υπάρχει παίκτης 2)
+        if player2:
+            hits2 = pygame.sprite.groupcollide(enemies_group, player2_bullets_group, False, True)
+            for enemy, bullets in hits2.items():
+                enemy.take_damage(damage=len(bullets)) 
+   
         # ----- GAME OVER ΕΛΕΓΧΟΣ -----
-        if game_mode == ONE_PLAYER and player1.health <= 0:
-            current_state = GAMEOVER
-        
-        if game_mode == TWO_PLAYERS and player1.health <= 0 and player2.health <= 0:
-            current_state = GAMEOVER
+        if game_mode == ONE_PLAYER:
+            if player1.health <= 0:
+                current_state = GAMEOVER
+        else: # TWO PLAYERS mode
+            if (player1.health <= 0) or (player2 and player2.health <= 0):
+                current_state = GAMEOVER
+            
                 
             
         # ----- ΣΧΕΔΙΑΣΗ -----
@@ -198,6 +206,9 @@ while not done:
 
         health_text = FONT_MEDIUM.render(f"{player1.health}", True, RUSSIAN_VIOLET)
         screen.blit(health_text, (SCREEN_WIDTH - 30 , 10)) # Σχεδίαση ζωής παίκτη
+
+        health_text2 = FONT_MEDIUM.render(f"{player2.health}", True, RUSSIAN_VIOLET)
+        screen.blit(health_text2, (SCREEN_WIDTH - 30 , 60)) # Σχεδίαση ζωής παίκτη 2
 
         enemies_group.draw(screen) # Σχεδίαση εχθρών
         player1_bullets_group.draw(screen) # Σχεδίαση σφαιρών παίκτη

@@ -1,6 +1,7 @@
 import pygame
 import random
 from enemy import Enemy
+from bossEnemy import BossEnemy
 
 class EnemyWave:
     """
@@ -55,8 +56,13 @@ class EnemyWave:
         self.grid_speed = 2.0  # Ταχύτητα κίνησης του grid αριστερά-δεξιά 
         self.padding = 50
 
-        self.wave_number = 0  # Αριθμός τρέχοντος κύματος εχθρών
         self.enemy_damage = 1  # Βασική ζημιά που προκαλεί κάθε εχθρός
+
+        self.wave_number = 0  # Αριθμός τρέχοντος κύματος εχθρών
+        self.BOSS_WAVE_FREQ = 3  # Κάθε πόσα κύματα εμφανίζεται ένας υπερεχθρός
+        self.boss_alive = False  # Flag για το αν ο υπερεχθρός είναι ζωντανός
+
+       
 
     def random_grid_size(self):
         """
@@ -158,6 +164,16 @@ class EnemyWave:
             #enemy.activate(row_height=self.spacing_y)
             enemy.activate()
     
+    def new_boss_enemy(self):
+        """
+        Μέθοδος για την δημιουργία ενός υπερεχθρού.
+        """
+        boss = BossEnemy(x=(self.scr_width - 100) // 2, y=50, 
+                         bullets_group=self.enemy_bullets_group,
+                         player_object=self.player)
+        self.enemies_group.add(boss) # Προσθήκη του υπερεχθρού στο αντίστοιχο group
+        self.boss_alive = True
+
     def new_enemy_wave(self):
         """
         Μέθοδος για την δημιουργία νέου κύματος(wave) εχθρών.
@@ -165,8 +181,15 @@ class EnemyWave:
         """
         self.grid_speed += 0.2  # Αύξηση της ταχύτητας του grid κάθε νέο κύμα
         self.wave_number += 1  # Αύξηση του αριθμού κύματος
-        #if self.wave_number % 5 == 0:
-        #    self.enemy_damage += 1  # Αύξηση της ζημιάς των εχθρών κάθε 5 κύματα
+        self.boss_alive = False  # Επαναφορά του flag υπερεχθρού
+
+        self.enemies_group.empty() # Αφαίρεση όλων των εχθρών από το group
+        self.enemy_bullets_group.empty() # Αφαίρεση όλων των σφαιρών εχθρών από το group
+        # Δημιουργία υπερεχθρού κάθε BOSS_WAVE_FREQ κύματα
+        if self.wave_number % self.BOSS_WAVE_FREQ == 0:
+            self.new_boss_enemy()
+            return
+        
         self.enemies_group.empty() # Αφαίρεση όλων των εχθρών από το group
         self.enemy_bullets_group.empty() # Αφαίρεση όλων των σφαιρών εχθρών από το group
         self.random_grid_size() # Τυχαία ρύθμιση μεγέθους grid
@@ -210,7 +233,7 @@ class EnemyWave:
         Μέθοδος για την κίνηση του grid εχθρών αριστερά-δεξιά.
         Σημειώση για διόρθωση: Φαίνεται πως η κίνησ προς τα αριστερά γίνεται πιο γρήγορα 
         απο την κίνηση προς τα δεξιά. Να βρούμε γιατι και να το διορθώσουμε.
-        TODO: να υπολογίζονται τα όρια του grid βάσει των θέσεων των ζωντανών εχθρών.
+        
         """
         alive_enemies = [
             enemy for row in self.enemies_grid for enemy in row if enemy.alive
@@ -219,32 +242,19 @@ class EnemyWave:
         if not alive_enemies:
             return  # Αν δεν υπάρχουν ζωντανοί εχθροί, δεν κάνουμε τίποτα
 
-        
-        min_x = min(enemy.rect.left for enemy in alive_enemies) 
-        max_x = max(enemy.rect.right for enemy in alive_enemies)
-        #min_x = float('inf') # Αριστερό άκρο του grid
-        #max_x = float('-inf') # Δεξί άκρο του grid
-        #for row in self.enemies_grid:
-        #    for enemy in row:
-        #      if enemy.rect.x < min_x:
-        #            min_x = enemy.rect.x
-        #        if enemy.rect.x + enemy.rect.width > max_x:
-        #           max_x = enemy.rect.x + enemy.rect.width
-
-        
-
+        min_x = min(enemy.rect.left for enemy in alive_enemies) # Εύρεση της αριστερής άκρης του αριστερότερου ζωντανού εχθρού
+        max_x = max(enemy.rect.right for enemy in alive_enemies) # Εύρεση της δεξιάς άκρης του δεξιότερου ζωντανού εχθρού
+       
         if min_x <= self.padding: # padding αριστερά
             self.grid_direction = 1  # Αλλαγή κατεύθυνσης προς τα δεξιά
         elif max_x >= self.scr_width - self.padding: # padding δεξιά
             self.grid_direction = -1  # Αλλαγή κατεύθυνσης προς τα αριστερά
 
-       
-
-        for enemy_row in self.enemies_grid:
-            for enemy in enemy_row:
+        # Κίνηση όλων των εχθρών στο grid       
+        for enemy_row in self.enemies_grid: # Κάθε σειρά εχθρών
+            for enemy in enemy_row: # Κάθε εχθρός στην σειρά
                 enemy.rect.x += self.grid_direction * self.grid_speed
-                if hasattr(enemy, 'x'):
-                    enemy.x = enemy.rect.x
+                enemy.x = enemy.rect.x
 
         self.moving_horizontal = True  # Ορισμός του flag ότι οι εχθροί κινούνται αριστερά-δεξιά
 
@@ -273,13 +283,31 @@ class EnemyWave:
             self.enemies_grid_move()
 
         # Πυροβολισμοί εχθρών από την ενεργή σειρά
-        for enemy in list(self.enemies_group):
-            if enemy.row == self.active_row and enemy.alive and enemy.movement_done:
-                enemy.shoot()
+        #for enemy in list(self.enemies_group):
+        #    if enemy.row == self.active_row and enemy.alive and enemy.movement_done:
+        #        enemy.shoot()
         
+
+        for enemy in list(self.enemies_group):
+            enemy.update()  # Ενημέρωση κάθε εχθρού
+            if isinstance(enemy, BossEnemy):
+                enemy.move_ai() 
+                enemy.shoot()
+            else: 
+                if enemy.row == self.active_row and enemy.alive and enemy.movement_done:
+                    enemy.shoot()
+                
+
+
         # Έλεγχος αν το κύμα έχει ολοκληρωθεί
-        if self.wave_complete():
-            self.new_enemy_wave() # Δημιουργία νέου κύματος εχθρών
+        #if self.wave_complete():
+        #    self.new_enemy_wave() # Δημιουργία νέου κύματος εχθρών
+        #    return
+
+        if self.boss_alive:
+            if not any(isinstance(enemy, BossEnemy)  for enemy in self.enemies_group):
+                self.boss_alive = False  # Ο υπερεχθρός έχει σκοτωθεί
+                self.new_enemy_wave()  # Δημιουργία νέου κύματος εχθρών
             return
 
         # Έλεγχος αν η ενεργή σειρά έχει καθαρίσει
