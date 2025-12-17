@@ -45,8 +45,8 @@ ELECTRIC_INDIGO = (99, 57, 235)
 SKY_BLUE = (94, 217, 242)
 
 # Ρυθμίσεις παραθύρου
-SCREEN_WIDTH = 500
-SCREEN_HEIGHT = 700
+SCREEN_WIDTH = 600
+SCREEN_HEIGHT = 800
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("CYBER RUNNER")
 backgrpund_img = pygame.image.load("background.jpg").convert()
@@ -199,7 +199,8 @@ while not done:
                 
             
         # ----- ΣΧΕΔΙΑΣΗ -----
-        screen.blit(backgrpund_img, (0, 0))  # Σχεδίαση φόντου
+        #screen.blit(backgrpund_img, (0, 0))  # Σχεδίαση φόντου
+        screen.fill(BLACK)
         player1.draw(screen) # Σχεδίαση παίκτη
         if game_mode == TWO_PLAYERS and player2:
             player2.draw(screen) # Σχεδίαση παίκτη 2
