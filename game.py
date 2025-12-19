@@ -49,7 +49,7 @@ SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 800
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("CYBER RUNNER")
-backgrpund_img = pygame.image.load("background.jpg").convert()
+backgrpund_img = pygame.image.load("background600800.jpg").convert()
 
 # Ρυθμίσεις ρολογιού
 clock = pygame.time.Clock() 
@@ -199,8 +199,8 @@ while not done:
                 
             
         # ----- ΣΧΕΔΙΑΣΗ -----
-        #screen.blit(backgrpund_img, (0, 0))  # Σχεδίαση φόντου
-        screen.fill(BLACK)
+        screen.blit(backgrpund_img, (0, 0))  # Σχεδίαση φόντου
+        #screen.fill(BLACK)
         player1.draw(screen) # Σχεδίαση παίκτη
         if game_mode == TWO_PLAYERS and player2:
             player2.draw(screen) # Σχεδίαση παίκτη 2

@@ -98,14 +98,14 @@ class Player(Entities):
     def import_handler(self, SCREEN_WIDTH, bullets_group=None):
         keys = pygame.key.get_pressed()
         if self.controls == "wasd":
-            if keys[pygame.K_SPACE]:
+            if keys[pygame.K_w]:
                 self.shooting(bullets_group)  # Ενέργεια πυροβολισμού
             if keys[pygame.K_a]:
                 self.move_left(None)  # Χρησιμοποιεί self.speed ως default
             if keys[pygame.K_d]:
                 self.move_right(None)  # Χρησιμοποιεί self.speed ως default
         elif self.controls == "arrows":
-            if keys[pygame.K_RCTRL]:
+            if keys[pygame.K_UP]:
                 self.shooting(bullets_group)  # Ενέργεια πυροβολισμού
             if keys[pygame.K_LEFT]:
                 self.move_left(None)  # Χρησιμοποιεί self.speed ως default
