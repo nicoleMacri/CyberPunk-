@@ -54,7 +54,10 @@ class Bullet(Entities):
         Μια νέα instance της κλάσης Bullet.
         """
         # Υπολογισμός αρχικής θέσης της σφαίρας (κέντρο πάνω από τον shooter)
-        bx = shooter.x + shooter.w // 2 - width // 2
-        by = shooter.y - height  # Πάνω από τον shooter
+        #bx = shooter.x + shooter.w // 2 - width // 2
+        #by = shooter.y - height  # Πάνω από τον shooter
+        bx = shooter.rect.centerx - width // 2
+        by = shooter.rect.bottom
+        
         # Δημιουργία και επιστροφή της σφαίρας
         return cls(bx, by, width, height, color, speed, vx, vy, owner=shooter, *groups) 

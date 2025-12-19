@@ -156,6 +156,7 @@ class EnemyWave:
     def new_boss_enemy(self):
         """
         Μέθοδος για την δημιουργία ενός υπερεχθρού.
+        TODO: Να είναι η αρχική θέση τυχαία.
         """
         boss = BossEnemy(x=(self.scr_width - 100) // 2, y=50, 
                          bullets_group=self.enemy_bullets_group,
