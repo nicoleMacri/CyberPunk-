@@ -1,7 +1,18 @@
 import pygame
+import random
 from entities import Entities
 from bullet import Bullet
-import player
+
+
+enemy_images = [
+
+    "assets/server_image_blue.png",
+    "assets/server_image_green.png",
+    "assets/server_image_red.png",
+    "assets/server_image_cyan.png",
+    "assets/server_image_magenta.png"
+
+]
 
 class Enemy(Entities):
     def __init__(self, x, y, width, height, color, speed,
@@ -46,15 +57,16 @@ class Enemy(Entities):
         self.target_y = fin_y
 
         # ----- sprite εχθρού -----
+        image_path = random.choice(enemy_images) 
         if image_path:
             self.image = pygame.image.load(image_path).convert_alpha() # Φόρτωση εικόνας με διαφάνεια
         else: 
             self.image = pygame.Surface((width, height))
             self.image.fill(color)
 
-        #w = int(self.image.get_width() * 1.5)  # Κλιμάκωση πλάτους
-        #h = int(self.image.get_height() * 1.5)  # Κλιμάκωση ύψους
-        #self.image = pygame.transform.scale(self.image, (w, h))  # Κλιμάκωση εικόνας
+        w = int(self.image.get_width() * 0.5)  # Κλιμάκωση πλάτους
+        h = int(self.image.get_height() * 0.5)  # Κλιμάκωση ύψους
+        self.image = pygame.transform.scale(self.image, (w, h))  # Κλιμάκωση εικόνας
 
         self.rect = self.image.get_rect() 
         self.rect.center =(self.x,self.y) # Κεντράρισμα του rect στην αρχική θέση
