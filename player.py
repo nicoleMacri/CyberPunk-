@@ -23,11 +23,13 @@ class Player(Entities):
     του παίκτη. Δέχεται *groups προαιρετικά για να προστεθεί σε ομάδες sprite. (Ισως
     να μην είναι απαραίτητο εδώ).
     """
-    def __init__(self, scr_width, scr_height, width, height, color, speed, controls, image_path, *groups):
+    def __init__(self, scr_width, scr_height, width, height, 
+                 speed, controls, image_path, *groups):
         start_x = int((scr_width - width)/ 2)
         start_y = int(scr_height - height - 10)
         
-        super().__init__(start_x, start_y, width, height, color, speed, *groups)
+        super().__init__(start_x, start_y, width, height, 
+                         speed, *groups)
 
         # Επιπλέον χαρακτηριστικά για τον πυροβολισμό από τον παίκτη
         self.fire_delay = 250  # Χρόνος καθυστέρησης μεταξύ πυροβολισμών σε milliseconds
@@ -73,7 +75,6 @@ class Player(Entities):
             self,
             width=4,
             height=10,
-            color=(255, 0, 0),
             speed=10.0,
             vx=0.0,
             vy=-1.0

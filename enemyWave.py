@@ -102,7 +102,6 @@ class EnemyWave:
 
                 # Αρχικοποίηση εχθρού
                 enemy = Enemy(x,-100,30,30,
-                            #color = random.choice(self.enemies_colors),
                             speed = 4.0,
                             move = "down",
                             fin_y=fin_y,

@@ -12,7 +12,7 @@ class Bullet(Entities):
     - Θα προσθεσούν οι για έλεγχο collision κλπ.
     - Δέχεται *groups προαιρετικά για να προστεθεί σε ομάδες sprite.
     """
-    def __init__(self, x, y, width, height, color, speed,  vx, vy, owner=None,
+    def __init__(self, x, y, width, height, speed,  vx, vy, owner=None,
                   use_img=False, image_path=None, alpha=255, *groups):
         """
         Arguments:
@@ -24,7 +24,8 @@ class Bullet(Entities):
         owner: Αναφορά στον κάτοχο της σφαίρας (π.χ. Player ή Enemy).
         *groups: Προαιρετικά, ομάδες sprite στις οποίες θα προστεθεί η
         """
-        super().__init__(x, y, width, height, color, speed, *groups)
+        super().__init__(x, y, width, height, 
+                        speed, *groups)
         # επιπλέον χαρακτηριστικά για τη σφαίρα
         self.vx = float(vx)
         self.vy = float(vy)
@@ -38,7 +39,7 @@ class Bullet(Entities):
             
         else:
             self.image = pygame.Surface((width, height), pygame.SRCALPHA)
-            self.image.fill(color) 
+            self.image.fill((236, 19, 164)) 
             self.image.set_alpha(alpha)  # Ορισμός διαφάνειας
 
         self.rect = self.image.get_rect(topleft=(self.x, self.y))  # Ενημέρωση του rect με την αρχική θέση
@@ -59,7 +60,8 @@ class Bullet(Entities):
         #ΤΟDO: Να προστεθεί λογική για να αφαιρεθεί η σφαίρα αν βγει εκτός οθόνης
     
     @classmethod
-    def from_shooter(cls, shooter, width, height, color, speed, vx, vy,
+    def from_shooter(cls, shooter, width, height,
+                     speed, vx, vy,
                      use_img=False, image_path=None, alpha=255, *groups):
         """
         Δημιουργεί μια σφαίρα που εκτοξεύεται από έναν shooter (Player ή Enemy).
@@ -82,6 +84,6 @@ class Bullet(Entities):
         by = shooter.rect.bottom
         
         # Δημιουργία και επιστροφή της σφαίρας
-        return cls(bx, by, width, height, color, 
+        return cls(bx, by, width, height,
                    speed, vx, vy, owner=shooter,
                     use_img=use_img, image_path=image_path, alpha=alpha,*groups) 

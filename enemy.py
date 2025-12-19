@@ -19,7 +19,8 @@ bullet_images = [
 ]
 
 class Enemy(Entities):
-    def __init__(self, x, y, width, height, color, speed,
+    def __init__(self, x, y, width, height, 
+                speed,
                 move, 
                 fin_y,
                 row = None, col = None,
@@ -36,7 +37,8 @@ class Enemy(Entities):
         *groups: Προαιρετικά, ομάδες sprite στις οποίες θα προστεθεί ο εχθρός.
         """
         # Καλούμε πρώτα τον constructor της υπερκλάσης
-        super().__init__(x, y, width, height, color, speed, *groups)
+        super().__init__(x, y, width, height, 
+                         speed, *groups)
 
         self.player = player_object
 
@@ -66,7 +68,7 @@ class Enemy(Entities):
             self.image = pygame.image.load(image_path).convert_alpha() # Φόρτωση εικόνας με διαφάνεια
         else: 
             self.image = pygame.Surface((width, height))
-            self.image.fill(color)
+            self.image.fill((236, 19, 164))
 
         w = int(self.image.get_width() * 0.5)  # Κλιμάκωση πλάτους
         h = int(self.image.get_height() * 0.5)  # Κλιμάκωση ύψους
@@ -80,11 +82,7 @@ class Enemy(Entities):
         Μέθοδος για την ενεργοποίηση του εχθρού.
         """
         self.movement_done = False
-        #self.start_y = self.rect.y
-        #self.target_y = self.start_y + int(row_height * 0.5) 
-        #if row_height is not None: 
-        #    self.target_y = self.start_y + int(row_height * 0.5)
-        #self.alive = True
+
 
     def take_damage(self, damage=1):
         """ Μέθοδος για damage του εχθρού. 
@@ -155,21 +153,11 @@ class Enemy(Entities):
         if now - self.last_shoot_time < self.shoot_delay:
             return None  # Δεν επιτρέπεται ο πυροβολισμός ακόμα
 
-
         #print(f"[shoot] Enemy ({self.row},{self.col}) at y={self.rect.y} shoots at t={now}")
-
-        # Δημιουργία νέας σφαίρας που κινείται προς τα κάτω
-        #STREAM_LENGTH = 8
-        #SPACING = 12
-        ##BASE_ALPHA = 50
-        #ALPHA_STEP = 25
-        #for i in range(STREAM_LENGTH):
-            #alpha = max(40, BASE_ALPHA - i * ALPHA_STEP)
         bullet = Bullet.from_shooter(
                 shooter=self,
                 width=6,
                 height=10,
-                color=(0, 255, 0),
                 speed=5.0,
                 vx=0.0,
                 vy=1.0,

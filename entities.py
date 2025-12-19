@@ -9,7 +9,8 @@ class Entities(pygame.sprite.Sprite):
 
     """
     # Αρχικοποίηση της κλάσης με βασικά χαρακτηριστικά
-    def __init__(self, x, y, width, height, color, speed, *groups):
+    def __init__(self, x, y, width, height,
+                 speed, *groups):
         # *groups επιτρέπει να προσθέσουμε ενα αντικείμενο σε πολλαπλές ομάδες sprite
         # Κλήση του constructor της γονικής κλάσης
         super().__init__(*groups) 
@@ -18,12 +19,12 @@ class Entities(pygame.sprite.Sprite):
         self._y = float(y)
         self.w = int(width)
         self.h = int(height)
-        self.color = color
+        #self.color = color
         self.speed = float(speed)
 
         # Δημιουργία της εικόνας και του ορθογωνίου (rect) για την οντότητα
         self.image = pygame.Surface((self.w, self.h)) # τεστ θα πρέπει να αλλάξει
-        self.image.fill(self.color)
+        #self.image.fill(self.color)
         self.rect = self.image.get_rect(topleft=(self._x, self._y))
 
         # flag για την κατάσταση της οντότητας

@@ -102,11 +102,12 @@ def new_game():
     game_over = False
 
     # Δημιουργία νέου παίκτη1
-    player1 = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 80, 40, 40, SKY_BLUE, 5, controls="arrows" , image_path="assets/Cyborg_idle_.png")
+    player1 = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 80, 40, 40, 
+                      5, controls="arrows" , image_path="assets/Cyborg_idle_.png")
     
     # Δημιουργία νέου παίκτη2 (αν υποστηρίζεται)
     if game_mode == TWO_PLAYERS:
-        player2 = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, 40, 40, ELECTRIC_INDIGO, 5, controls="wasd", image_path="assets/Punk_idle_.png")
+        player2 = Player(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, 40, 40, 5, controls="wasd", image_path="assets/Punk_idle_.png")
     else:
         player2 = None
     
