@@ -55,7 +55,7 @@ pygame.display.set_caption("CYBER RUNNER")
 #GAME_AREA = GameArea(width=600, height=800, left=300, top=0)
 
 # Φόρτωση εικόνας φόντου
-background_img = pygame.image.load("background600800.jpg").convert()
+background_img = pygame.image.load("assets/background_green.jpg").convert()
 
 # Ρυθμίσεις ρολογιού
 clock = pygame.time.Clock() 

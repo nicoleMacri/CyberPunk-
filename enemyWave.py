@@ -31,12 +31,6 @@ class EnemyWave:
         self.player_bullets_group = player_bullets_group # Group με τις σφαίρες παίκτη
         self.player = player  # Αντικείμενο παίκτη
 
-        self.enemies_colors = [
-            (245, 230, 18), # LASER_LEMON
-            (236, 19, 164), # HOLLYWOOD_CERISE
-            (99, 57, 235) # ELECTRIC_INDIGO
-        ]
-
         self.rows = None # Ορίζεται απο την random_grid_size
         self.cols = None # Ορίζεται απο την random_grid_size
         self.spacing_x = 60  # Απόσταση μεταξύ στηλών
@@ -108,7 +102,7 @@ class EnemyWave:
 
                 # Αρχικοποίηση εχθρού
                 enemy = Enemy(x,-100,30,30,
-                            color = random.choice(self.enemies_colors),
+                            #color = random.choice(self.enemies_colors),
                             speed = 4.0,
                             move = "down",
                             fin_y=fin_y,

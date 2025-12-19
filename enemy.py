@@ -11,7 +11,11 @@ enemy_images = [
     "assets/server_image_red.png",
     "assets/server_image_cyan.png",
     "assets/server_image_magenta.png"
+]
 
+bullet_images = [
+    "assets/zero_bullet.png",
+    "assets/one_bullet.png"
 ]
 
 class Enemy(Entities):
@@ -155,15 +159,28 @@ class Enemy(Entities):
         #print(f"[shoot] Enemy ({self.row},{self.col}) at y={self.rect.y} shoots at t={now}")
 
         # Δημιουργία νέας σφαίρας που κινείται προς τα κάτω
+        #STREAM_LENGTH = 8
+        #SPACING = 12
+        ##BASE_ALPHA = 50
+        #ALPHA_STEP = 25
+        #for i in range(STREAM_LENGTH):
+            #alpha = max(40, BASE_ALPHA - i * ALPHA_STEP)
         bullet = Bullet.from_shooter(
-            self,
-            width=4,
-            height=10,
-            color=(0, 255, 0),
-            speed=5.0,
-            vx=0.0,
-            vy=1.0
-        )
+                shooter=self,
+                width=6,
+                height=10,
+                color=(0, 255, 0),
+                speed=5.0,
+                vx=0.0,
+                vy=1.0,
+                use_img=True,
+                image_path=bullet_images,
+                alpha = 255
+            )
+
+
+            #bullet.y -= i * SPACING
+            #bullet.rect.y = bullet.y
 
         self.bullets_group.add(bullet) # Προσθήκη της σφαίρας στην ομάδα σφαιρών εχθρών
         self.last_shoot_time = now # Ενημέρωση του χρόνου του τελευταίου πυροβολισμού

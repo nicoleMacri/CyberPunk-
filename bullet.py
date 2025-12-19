@@ -1,5 +1,8 @@
 import pygame
+import random
 from entities import Entities
+
+
 
 class Bullet(Entities): 
     """
@@ -9,7 +12,8 @@ class Bullet(Entities):
     - Θα προσθεσούν οι για έλεγχο collision κλπ.
     - Δέχεται *groups προαιρετικά για να προστεθεί σε ομάδες sprite.
     """
-    def __init__(self, x, y, width, height, color, speed,  vx, vy, owner=None, *groups):
+    def __init__(self, x, y, width, height, color, speed,  vx, vy, owner=None,
+                  use_img=False, image_path=None, alpha=255, *groups):
         """
         Arguments:
         x, y: Αρχικές συντεταγμένες της σφαίρας.
@@ -26,6 +30,22 @@ class Bullet(Entities):
         self.vy = float(vy)
         self.owner = owner  # Μπορεί να είναι Player ή Enemy
 
+        # ρυθμισεις για το ματσιξ εφε
+        if use_img and image_path:
+            image_path = random.choice(image_path)
+            self.image = pygame.image.load(image_path).convert_alpha() # Φόρτωση εικόνας με διαφάνεια
+            self.image.set_alpha(alpha)  # Ορισμός διαφάνειας
+            
+        else:
+            self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+            self.image.fill(color) 
+            self.image.set_alpha(alpha)  # Ορισμός διαφάνειας
+
+        self.rect = self.image.get_rect(topleft=(self.x, self.y))  # Ενημέρωση του rect με την αρχική θέση
+
+
+
+
     def update(self, *args, **kwargs):
         """
         Ενημερώνει τη θέση της σφαίρας με βάση το velocity vector και την ταχύτητα ανα frame.
@@ -34,11 +54,13 @@ class Bullet(Entities):
         # Μετακίνηση της σφαίρας βάσει του velocity vector
         self.x += self.vx * self.speed
         self.y += self.vy * self.speed
+        self.rect.topleft = (self.x, self.y)  # Ενημέρωση του rect με τις νέες συντεταγμένες
         super().update(*args, **kwargs) # Ενημέρωση του rect με κλήση της υπερκλάσης
         #ΤΟDO: Να προστεθεί λογική για να αφαιρεθεί η σφαίρα αν βγει εκτός οθόνης
     
     @classmethod
-    def from_shooter(cls, shooter, width, height, color, speed, vx, vy, *groups):
+    def from_shooter(cls, shooter, width, height, color, speed, vx, vy,
+                     use_img=False, image_path=None, alpha=255, *groups):
         """
         Δημιουργεί μια σφαίρα που εκτοξεύεται από έναν shooter (Player ή Enemy).
 
@@ -60,4 +82,6 @@ class Bullet(Entities):
         by = shooter.rect.bottom
         
         # Δημιουργία και επιστροφή της σφαίρας
-        return cls(bx, by, width, height, color, speed, vx, vy, owner=shooter, *groups) 
+        return cls(bx, by, width, height, color, 
+                   speed, vx, vy, owner=shooter,
+                    use_img=use_img, image_path=image_path, alpha=alpha,*groups) 
