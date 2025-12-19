@@ -13,6 +13,7 @@ class Enemy(Entities):
                 row_height=None,
                 hp = None,
                 player_object=None,
+                image_path=None,
                 *groups):
         """
         bullets_group: Προαιρετική ομάδα sprite για τις σφαίρες που θα πυροβολεί ο εχθρός.
@@ -45,7 +46,11 @@ class Enemy(Entities):
         self.target_y = fin_y
 
         # ----- sprite εχθρού -----
-        self.image = pygame.image.load("assets/server_image_.png").convert_alpha() # Φόρτωση εικόνας με διαφάνεια
+        if image_path:
+            self.image = pygame.image.load(image_path).convert_alpha() # Φόρτωση εικόνας με διαφάνεια
+        else: 
+            self.image = pygame.Surface((width, height))
+            self.image.fill(color)
 
         #w = int(self.image.get_width() * 1.5)  # Κλιμάκωση πλάτους
         #h = int(self.image.get_height() * 1.5)  # Κλιμάκωση ύψους

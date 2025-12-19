@@ -9,6 +9,7 @@ import pygame
 
 import random
 from ui import Button
+from gameAreaSetting import GameArea
 
 # Εισαγωγή κλάσεων 
 from player import Player
@@ -49,7 +50,12 @@ SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 800
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("CYBER RUNNER")
-backgrpund_img = pygame.image.load("background600800.jpg").convert()
+
+# Ρυθμίσεις περιοχής παιχνιδιού
+#GAME_AREA = GameArea(width=600, height=800, left=300, top=0)
+
+# Φόρτωση εικόνας φόντου
+background_img = pygame.image.load("background600800.jpg").convert()
 
 # Ρυθμίσεις ρολογιού
 clock = pygame.time.Clock() 
@@ -199,12 +205,12 @@ while not done:
                 
             
         # ----- ΣΧΕΔΙΑΣΗ -----
-        screen.blit(backgrpund_img, (0, 0))  # Σχεδίαση φόντου
+        screen.fill(BLACK)
+        screen.blit(background_img, (0,0))  # Σχεδίαση φόντου
         #screen.fill(BLACK)
-        player1.draw(screen) # Σχεδίαση παίκτη
+        player1.draw(screen)
         if game_mode == TWO_PLAYERS and player2:
-            player2.draw(screen) # Σχεδίαση παίκτη 2
-
+            player2.draw(screen)
         score_text = FONT_MEDIUM.render(f"{player1.score}", True, HOLLYWOOD_CERISE)
         screen.blit(score_text, (10, 10)) # Σχεδίαση score παίκτη
 

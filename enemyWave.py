@@ -23,9 +23,9 @@ class EnemyWave:
     #
 
 
-    def __init__(self, scr_width, scr_height, enemies_group, enemy_bullets_group, player_bullets_group, player):
-        self.scr_width = scr_width # Πλάτος οθόνης
-        self.scr_height = scr_height # Ύψος οθόνης
+    def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT, enemies_group, enemy_bullets_group, player_bullets_group, player):
+        self.scr_width = SCREEN_WIDTH # Πλάτος οθόνης
+        self.scr_height = SCREEN_HEIGHT # Ύψος οθόνης
         self.enemies_group = enemies_group # Group με τους εχθρούς
         self.enemy_bullets_group = enemy_bullets_group # Group με τις σφαίρες εχθρών
         self.player_bullets_group = player_bullets_group # Group με τις σφαίρες παίκτη
@@ -71,18 +71,6 @@ class EnemyWave:
         Η δυσκολία αυξάνεται ανα 3 κύματα εχθρών.
 
         """
-        # πρέπει να αλλαχθεί ο τρόπος που αυξάνεται η δυσκολία σε σχέση με την τυχαίοτητα
-
-       
-        #difficulty = self.wave_number // 3  # Αύξηση δυσκολίας κάθε 3 κύματα
-        #min_rows = 2 # ελάχιστος αριθμός σειρών και στηλών
-        #max_rows = 4 # μέγιστος αριθμός σειρών και στηλών
-
-        #max_rows = max_rows + difficulty
-        #max_cols = max_rows + difficulty
-        #rows_max = min (max_rows, 6) # μέγιστος αριθμός σειρών με όριο το 6
-        #cols_max = min (max_cols, 6) # μέγιστος αριθμός στηλών με όριο το 6
-
         level = min(self.wave_number // 5, len(self.LEVELS) -1)  # Αύξηση δυσκολίας κάθε 5 κύματα
         base_rows, base_cols = self.LEVELS[level]
 
@@ -130,7 +118,8 @@ class EnemyWave:
                             shoot_delay = 2000,
                             row_height = self.spacing_y, # αυτο δεν χρησιμοποιείται πλέον
                             hp = 1,
-                            player_object = self.player)
+                            player_object = self.player,
+                            image_path="assets/server_image_.png")
                 
                 self.enemies_group.add(enemy) # Προσθήκη του εχθρού στο αντίστοιχο group
                 row_list.append(enemy) # Προσθήκη του εχθρού στη σειρά
@@ -170,7 +159,8 @@ class EnemyWave:
         """
         boss = BossEnemy(x=(self.scr_width - 100) // 2, y=50, 
                          bullets_group=self.enemy_bullets_group,
-                         player_object=self.player)
+                         player_object=self.player,
+                         image_path="assets/cyberbot_.png")
         self.enemies_group.add(boss) # Προσθήκη του υπερεχθρού στο αντίστοιχο group
         self.boss_alive = True
 
