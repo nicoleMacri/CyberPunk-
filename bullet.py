@@ -26,6 +26,7 @@ class Bullet(Entities):
         """
         super().__init__(x, y, width, height, 
                         speed, *groups)
+        
         # επιπλέον χαρακτηριστικά για τη σφαίρα
         self.vx = float(vx)
         self.vy = float(vy)

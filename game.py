@@ -3,23 +3,24 @@
 Περιλαμβάνει την αρχικοποίηση του παραθύρου, τη δημιουργία αντικειμένων παίκτη, εχθρών,
 σφαιρών και power-ups, καθώς και την κύρια λούπα του παιχνιδιού για την επεξεργασία εισόδου,
 την ενημέρωση της κατάστασης των αντικειμένων και τη σχεδίαση τους.
-
 """
-import pygame
 
-import random
-from ui import Button
-from gameAreaSetting import GameArea
+import pygame
 
 # Εισαγωγή κλάσεων 
 from player import Player
-from enemy import Enemy
 from powerups import PowerUp
 from enemyWave import EnemyWave
+from ui import Button
+from database import create_highscores_table
 
 # Αρχικοποίηση της βιβλιοθήκης Pygame
 pygame.init()
 pygame.mixer.init()
+
+# Αρχικοποίηση της βάσης δεδομένων για τους high scores
+DB_FILE = "game.db"
+create_highscores_table(DB_FILE)
 
 # Ορισμός καταστάσεων παιχνιδιού
 MENU = 0
@@ -29,6 +30,7 @@ HISHSCORES = 3
 GAMEOVER = 4
 
 current_state = MENU # Αρχική κατάσταση παιχνιδιού
+game_over = False
 sound_on = True #?
 
 # Ορισμός mode παιχνιδιού
@@ -44,15 +46,13 @@ HOLLYWOOD_CERISE = (236, 19, 164)
 AUREOLIN = (245, 230, 18)
 ELECTRIC_INDIGO = (99, 57, 235)
 SKY_BLUE = (94, 217, 242)
+NEON_GREEN = (57, 255, 20)
 
 # Ρυθμίσεις παραθύρου
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 800
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("CYBER RUNNER")
-
-# Ρυθμίσεις περιοχής παιχνιδιού
-#GAME_AREA = GameArea(width=600, height=800, left=300, top=0)
 
 # Φόρτωση εικόνας φόντου
 background_img = pygame.image.load("assets/background_green.jpg").convert()
@@ -71,10 +71,10 @@ btn_h = 50
 center_x = SCREEN_WIDTH // 2 - btn_w // 2
 
 menu_buttons =  [
-    Button(center_x, 250, btn_w, btn_h, "NEW GAME - ONE player", FONT_SMALL, ELECTRIC_INDIGO, WHITE),
-    Button(center_x, 320, btn_w, btn_h, "NEW GAME - TWO player", FONT_SMALL, ELECTRIC_INDIGO, WHITE),
-    Button(center_x, 390, btn_w, btn_h,"HIGHSCORES", FONT_SMALL, ELECTRIC_INDIGO, WHITE),
-    Button(center_x, 460, btn_w, btn_h, "EXIT", FONT_SMALL, ELECTRIC_INDIGO, WHITE),
+    Button(center_x, 250, btn_w, btn_h, "NEW GAME - ONE player", FONT_SMALL, NEON_GREEN, BLACK),
+    Button(center_x, 320, btn_w, btn_h, "NEW GAME - TWO player", FONT_SMALL, NEON_GREEN, BLACK),
+    Button(center_x, 390, btn_w, btn_h,"HIGHSCORES", FONT_SMALL, NEON_GREEN, BLACK),
+    Button(center_x, 460, btn_w, btn_h, "EXIT", FONT_SMALL, NEON_GREEN, BLACK),
     ]
 
 # Δημιουργία groups για τα sprites 
@@ -92,10 +92,8 @@ pygame.mixer.music.load("assets/background_music.wav")
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(-1)  # Αναπαραγωγή σε βρόχο
 
-game_over = False
 
-
-# Συνάρτηση για την έναρξη νέου παιχνιδιού
+# Βοηθητική συνάρτηση για την έναρξη νέου παιχνιδιού
 def new_game():
     global player1, player2, game_over, wave_manager
     # Επαναφορά μεταβλητών παιχνιδιού
@@ -111,6 +109,12 @@ def new_game():
     else:
         player2 = None
     
+    players_group = pygame.sprite.Group()
+    if player1:
+        players_group.add(player1)
+    if player2:
+        players_group.add(player2)
+
     # Επαναφορά των groups των sprites
     player1_bullets_group.empty()
     player2_bullets_group.empty()
@@ -118,7 +122,8 @@ def new_game():
     enemies_group.empty()
 
     # Επαναφορά του wave manager
-    wave_manager = EnemyWave(SCREEN_WIDTH, SCREEN_HEIGHT, enemies_group, enemy_bullets_group, player1_bullets_group, player1)
+    wave_manager = EnemyWave(SCREEN_WIDTH, SCREEN_HEIGHT, enemies_group, 
+                             enemy_bullets_group, player1_bullets_group, player1, players_group)
     wave_manager.new_enemy_wave() # Δημιουργία νέου κύματος εχθρών
 
 # ------------------------------------
@@ -150,7 +155,7 @@ while not done:
                     done = True
             
         screen.fill(BLACK)
-        title_text = FONT_LARGE.render("CYBER RUNNER", True, WHITE)
+        title_text = FONT_LARGE.render("CYBER RUNNER", True, NEON_GREEN)
         screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 100))
         for button in menu_buttons:
             button.draw(screen)
@@ -212,14 +217,18 @@ while not done:
         player1.draw(screen)
         if game_mode == TWO_PLAYERS and player2:
             player2.draw(screen)
-        score_text = FONT_MEDIUM.render(f"{player1.score}", True, HOLLYWOOD_CERISE)
-        screen.blit(score_text, (10, 10)) # Σχεδίαση score παίκτη
 
-        health_text = FONT_MEDIUM.render(f"{player1.health}", True, RUSSIAN_VIOLET)
+
+        #score_text = FONT_MEDIUM.render(f"{player1.score}", True, HOLLYWOOD_CERISE)
+        #screen.blit(score_text, (10, 10)) # Σχεδίαση score παίκτη
+        
+        total_score = player1.score + (player2.score if player2 else 0)
+        total_score_text = FONT_MEDIUM.render(f"Score: {total_score}", True, NEON_GREEN)
+        screen.blit(total_score_text, (10, 10)) # Σχεδίαση score 
+        
+
+        health_text = FONT_MEDIUM.render(f"{player1.health}", True, NEON_GREEN)
         screen.blit(health_text, (SCREEN_WIDTH - 30 , 10)) # Σχεδίαση ζωής παίκτη
-
-        #health_text2 = FONT_MEDIUM.render(f"{player2.health}", True, RUSSIAN_VIOLET)
-        # screen.blit(health_text2, (SCREEN_WIDTH - 30 , 60)) # Σχεδίαση ζωής παίκτη 2
 
         enemies_group.draw(screen) # Σχεδίαση εχθρών
         player1_bullets_group.draw(screen) # Σχεδίαση σφαιρών παίκτη
@@ -231,11 +240,12 @@ while not done:
 
     elif current_state == HISHSCORES:
         print("HIGHSCORES state")
-        pass # Λογική για την εμφάνιση των υψηλών σκορ
+        screen.fill(BLACK)
+
 
     elif current_state == GAMEOVER:
         #screen.fill(BLACK)
-        game_over_text = FONT_LARGE.render("GAME OVER", True, WHITE)
+        game_over_text = FONT_LARGE.render("GAME OVER", True, HOLLYWOOD_CERISE)
         text_rect = game_over_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
         screen.blit(game_over_text, text_rect)
 

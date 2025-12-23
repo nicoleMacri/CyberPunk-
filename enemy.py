@@ -6,11 +6,16 @@ from bullet import Bullet
 
 enemy_images = [
 
-    "assets/server_image_blue.png",
-    "assets/server_image_green.png",
-    "assets/server_image_red.png",
-    "assets/server_image_cyan.png",
-    "assets/server_image_magenta.png"
+    #"assets/server_image_blue.png",
+    #"assets/server_image_green.png",
+    #"assets/server_image_red.png",
+    #"assets/server_image_cyan.png",
+    #"assets/server_image_magenta.png"
+    "assets/server_image_neongreen1.png",
+    "assets/server_image_neongreen2.png",
+    "assets/server_image_neongreen3.png",
+    "assets/server_image_neongreen4.png",
+    
 ]
 
 bullet_images = [

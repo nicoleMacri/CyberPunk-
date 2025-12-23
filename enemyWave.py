@@ -23,13 +23,15 @@ class EnemyWave:
     #
 
 
-    def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT, enemies_group, enemy_bullets_group, player_bullets_group, player):
+    def __init__(self, SCREEN_WIDTH, SCREEN_HEIGHT, enemies_group, enemy_bullets_group,
+                player_bullets_group, player,players_group):
         self.scr_width = SCREEN_WIDTH # Πλάτος οθόνης
         self.scr_height = SCREEN_HEIGHT # Ύψος οθόνης
         self.enemies_group = enemies_group # Group με τους εχθρούς
         self.enemy_bullets_group = enemy_bullets_group # Group με τις σφαίρες εχθρών
         self.player_bullets_group = player_bullets_group # Group με τις σφαίρες παίκτη
         self.player = player  # Αντικείμενο παίκτη
+        self.players_group = players_group  # Group με τους παίκτες (για multiplayer)
 
         self.rows = None # Ορίζεται απο την random_grid_size
         self.cols = None # Ορίζεται απο την random_grid_size
@@ -151,10 +153,13 @@ class EnemyWave:
         Μέθοδος για την δημιουργία ενός υπερεχθρού.
         TODO: Να είναι η αρχική θέση τυχαία.
         """
+        
         boss = BossEnemy(x=(self.scr_width - 100) // 2, y=50, 
+                         width=100, height=100, speed=2.0,
+                         players_group= self.players_group,
                          bullets_group=self.enemy_bullets_group,
-                         player_object=self.player,
-                         image_path="assets/cyberbot_.png")
+                         image_path="assets/cyberbot_.png",
+                         hp=10,)
         self.enemies_group.add(boss) # Προσθήκη του υπερεχθρού στο αντίστοιχο group
         self.boss_alive = True
 
@@ -307,5 +312,3 @@ class EnemyWave:
             else:
                 self.new_enemy_wave() # Δημιουργία νέου κύματος εχθρών
 
-    def newMethod():
-        pass
